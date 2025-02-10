@@ -13,10 +13,86 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+
+enum GENDER {
+  MALE
+  FEMALE
+}
+
+enum ROLE {
+  ADMIN
+  USER 
+  SYSTEM
+}
+
+enum CATEGORY {
+  EXPENSE
+  INCOME
+  TRANSFER
+}
+
+
 model User {
   id Int @id @default(autoincrement())
   firstName String
   lastName String
+  username String @unique
   email String @unique
   password String
+  dateOfBirth DateTime
+  profileURL String
+  gender GENDER
+  createdAt DateTime @default(now())
+  deletedAt DateTime
+  role ROLE @default(USER)
+  Categories Category[]
+  Budgets Budget[]
+  Accounts Account[]
+}
+
+model Budget {
+  id Int @id @default(autoincrement())
+  amount Int
+  startDate DateTime
+  endDate DateTime
+  user User @relation(fields: [userID], references: [id])
+  userID Int
+}
+
+model Account {
+  id Int @id @default(autoincrement())
+  name String
+  balance Int
+  Transactions Transaction[]
+  user User @relation(fields: [userID], references: [id])
+  userID Int
+  currency Currency @relation(fields: [currencyID], references: [id])
+  currencyID Int
+}
+
+model Currency {
+  id Int @id @default(autoincrement())
+  name String
+  accounts Account[]
+}
+
+model Transaction {
+  id Int @id @default(autoincrement())
+  amount Int
+  type CATEGORY
+  description String
+  category Category? @relation(fields: [categoryID], references: [id])
+  categoryID Int?
+  account Account? @relation(fields: [accountID], references: [id])
+  accountID Int?
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+  name String 
+  type CATEGORY
+  user User? @relation(fields: [userID], references: [id])
+  userID Int @unique
+  Transactions Transaction[]
 }
