@@ -5,12 +5,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   //api swagger configuration
   const config = new DocumentBuilder()
-    .setTitle('Aha Smart')
+    .setTitle('Jay Luy API')
     .setDescription(
-      'this is aha smart api, you can do database manipulation through this ui',
+      'this is jay luy api, you can do database manipulation through this ui',
     )
     .setVersion('1.0')
-    .addTag('aha smart')
+    .addTag('Expense Tracker')
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
