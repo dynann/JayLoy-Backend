@@ -4,9 +4,9 @@ export enum GenderEnum {
 }
 
 export enum RoleEnum {
-  ADMIN = 'admin',
-  USER = 'user',
-  SYSTEM = 'system',
+  ADMIN = 'ADMIN',
+  USER = 'USER',
+  SYSTEM = 'SYSTEM',
 }
 
 export enum CategoryEnum {

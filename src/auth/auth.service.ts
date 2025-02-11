@@ -13,13 +13,14 @@ export class AuthService {
         if (!user){
             throw new UnauthorizedException('Invalid credentials');
         }
-        const tokens = await this.generateTokens(user.id)
+
+        const tokens = await this.generateTokens(user.id, user.role);
         return tokens 
     }
 
-    async generateTokens(userId: number) {
+    async generateTokens(userId: number, role: string) {
         const accessToken = this.jwtService.sign(
-          { sub: userId},
+          { sub: userId, role},
           { secret: jwtConstant.secret, expiresIn: '15m' },
         );
         return { accessToken };

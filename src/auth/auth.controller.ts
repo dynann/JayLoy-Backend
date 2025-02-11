@@ -3,6 +3,9 @@ import { ApiBody, ApiOperation, ApiProperty, ApiResponse, ApiTags } from '@nestj
 import { LoginDto, LoginProperty } from './dto/type.dto';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
+import { RolesGuard } from './roles.guard';
+import { RoleEnum } from 'src/config/contants';
+import { Roles } from './roles.decorator';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -41,5 +44,21 @@ export class AuthController {
   @Post('refresh')
   async refreshToken() {
     return 'token is refreshed';
+  }
+
+  @Get('user')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(RoleEnum.USER)
+  @HttpCode(HttpStatus.OK)
+  async testUser() {
+    return 'Allow Access!';
+  }
+
+  @Get('admin')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(RoleEnum.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  async testAdmin() {
+    return 'Allow Access!';
   }
 }
