@@ -18,6 +18,7 @@ datasource db {
 enum GENDER {
   MALE
   FEMALE
+  UNSPECIFY
 }
 
 enum ROLE {
@@ -35,16 +36,16 @@ enum CATEGORY {
 
 model User {
   id Int @id @default(autoincrement())
-  firstName String
-  lastName String
-  username String @unique
+  firstName String?
+  lastName String?
+  username String? @unique
   email String @unique
   password String
-  dateOfBirth DateTime
-  profileURL String
-  gender GENDER
+  dateOfBirth DateTime?
+  profileURL String?
+  gender GENDER @default(UNSPECIFY)
   createdAt DateTime @default(now())
-  deletedAt DateTime
+  deletedAt DateTime?
   role ROLE @default(USER)
   Categories Category[]
   Budgets Budget[]
