@@ -14,3 +14,7 @@ export enum CategoryEnum {
   INCOME = 'income',
   TRANSFER = 'transfer',
 }
+
+export const jwtConstant = {
+  secret: 'abcdefghijklmno1029384756',
+}
