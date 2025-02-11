@@ -17,7 +17,7 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, documentFactory, {
     customfavIcon:
       'https://res-console.cloudinary.com/dlbbfck9n/media_explorer_thumbnails/e21d9307936995dc631dc520ee985775/detailed',
-    customSiteTitle: 'AhaSmartAPI',
+    customSiteTitle: 'JayLuy API',
     customCss: '.topbar { display: none; }',
   });
   await app.listen(process.env.PORT ?? 3000);

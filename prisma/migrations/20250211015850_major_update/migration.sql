@@ -1,16 +1,5 @@
-/*
-  Warnings:
-
-  - A unique constraint covering the columns `[username]` on the table `User` will be added. If there are existing duplicate values, this will fail.
-  - Added the required column `dateOfBirth` to the `User` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `deletedAt` to the `User` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `gender` to the `User` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `profileURL` to the `User` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `username` to the `User` table without a default value. This is not possible if the table is not empty.
-
-*/
 -- CreateEnum
-CREATE TYPE "GENDER" AS ENUM ('MALE', 'FEMALE');
+CREATE TYPE "GENDER" AS ENUM ('MALE', 'FEMALE', 'UNSPECIFY');
 
 -- CreateEnum
 CREATE TYPE "ROLE" AS ENUM ('ADMIN', 'USER', 'SYSTEM');
@@ -18,14 +7,23 @@ CREATE TYPE "ROLE" AS ENUM ('ADMIN', 'USER', 'SYSTEM');
 -- CreateEnum
 CREATE TYPE "CATEGORY" AS ENUM ('EXPENSE', 'INCOME', 'TRANSFER');
 
--- AlterTable
-ALTER TABLE "User" ADD COLUMN     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-ADD COLUMN     "dateOfBirth" TIMESTAMP(3) NOT NULL,
-ADD COLUMN     "deletedAt" TIMESTAMP(3) NOT NULL,
-ADD COLUMN     "gender" "GENDER" NOT NULL,
-ADD COLUMN     "profileURL" TEXT NOT NULL,
-ADD COLUMN     "role" "ROLE" NOT NULL DEFAULT 'USER',
-ADD COLUMN     "username" TEXT NOT NULL;
+-- CreateTable
+CREATE TABLE "User" (
+    "id" SERIAL NOT NULL,
+    "firstName" TEXT,
+    "lastName" TEXT,
+    "username" TEXT,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "dateOfBirth" TIMESTAMP(3),
+    "profileURL" TEXT,
+    "gender" "GENDER" NOT NULL DEFAULT 'UNSPECIFY',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deletedAt" TIMESTAMP(3),
+    "role" "ROLE" NOT NULL DEFAULT 'USER',
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "Budget" (
@@ -80,10 +78,13 @@ CREATE TABLE "Category" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Category_userID_key" ON "Category"("userID");
+CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Category_userID_key" ON "Category"("userID");
 
 -- AddForeignKey
 ALTER TABLE "Budget" ADD CONSTRAINT "Budget_userID_fkey" FOREIGN KEY ("userID") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
