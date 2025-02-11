@@ -20,6 +20,7 @@ import { AuthModule } from './auth/auth.module';
     TransactionsModule,
     CategoriesModule,
     AuthModule,
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
