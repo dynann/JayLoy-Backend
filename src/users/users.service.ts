@@ -1,19 +1,22 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-
+import * as bcrypt from 'bcrypt'
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
   async createOne(createUserDto: Prisma.UserCreateInput) {
     try {
-      const res = await this.prisma.user.create({
-        data: createUserDto,
-      });
-      if (!res) {
-        return null;
+      const res = await this.prisma.user.findUnique({
+        where: {email: createUserDto.email}
+      })
+      if (res) {
+        throw new HttpException('user already exists', HttpStatus.BAD_REQUEST)
       }
-      return res;
+      const hashpassowrd = await bcrypt.hash(createUserDto.password, 10)
+      createUserDto.password = hashpassowrd
+      const user = await this.prisma.user.create({data: createUserDto})
+      return user
     } catch (error) {
       console.log(error);
       throw new HttpException(error, HttpStatus.BAD_REQUEST);
@@ -71,6 +74,36 @@ export class UsersService {
       return deleteUser;
     } catch (error) {
       throw new HttpException(`Error ${error}`, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async findByEmail(email: string) {
+    return await this.prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+  }
+  async validateUser(email: string, password: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          email: email,
+        },
+      });
+      if (!user) {
+        return null;
+      }
+      const isMatch = await bcrypt.compare(password, user.password)
+      if(!isMatch){
+        return null
+      }
+      return user;
+    } catch (error) {
+      throw new HttpException(
+        `an error occurred: ${error}`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 }
