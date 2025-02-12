@@ -7,6 +7,8 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { jwtConstant } from 'src/config/contants';
 import { Request } from 'express';
+import { Payload } from '@prisma/client/runtime/library';
+import { PayloadDto } from './dto/type.dto';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -15,11 +17,13 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
+    console.log(token)
     if (!token) {
+      console.log(" you can't do it by the way ")
       throw new UnauthorizedException();
     }
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
+      const payload: PayloadDto = await this.jwtService.verifyAsync(token, {
         secret: jwtConstant.secret,
       });
 

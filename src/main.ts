@@ -11,6 +11,7 @@ async function bootstrap() {
     )
     .setVersion('1.0')
     .addTag('Expense Tracker')
+    .addBearerAuth()
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
@@ -19,6 +20,9 @@ async function bootstrap() {
       'https://res-console.cloudinary.com/dlbbfck9n/media_explorer_thumbnails/e21d9307936995dc631dc520ee985775/detailed',
     customSiteTitle: 'JayLuy API',
     customCss: '.topbar { display: none; }',
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
   });
   await app.listen(process.env.PORT ?? 3000);
   console.log(`app run on http://localhost:3000`);
