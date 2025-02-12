@@ -1,28 +1,61 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConstant } from 'src/config/contants';
 import { UsersService } from 'src/users/users.service';
-import { LoginDto } from './dto/type.dto';
-
+import { LoginDto, PayloadDto } from './dto/type.dto';
+import * as dotenv from 'dotenv';
+dotenv.config();
 @Injectable()
 export class AuthService {
-    constructor(private userService: UsersService, private jwtService: JwtService) {}
-    
-    async login(loginDto: LoginDto) {
-        const user = await this.userService.validateUser(loginDto.email, loginDto.password)
-        if (!user){
-            throw new UnauthorizedException('Invalid credentials');
-        }
-        const tokens = await this.generateTokens(user.id)
-        return tokens 
+  constructor(
+    private userService: UsersService,
+    private jwtService: JwtService,
+  ) {}
+
+  async login(loginDto: LoginDto) {
+    const user = await this.userService.validateUser(
+      loginDto.email,
+      loginDto.password,
+    );
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
     }
+    const payload: PayloadDto = {sub: user.id, role: user.role };
+    const tokens = await this.generateTokens(payload);
+    return tokens;
+  }
 
-    async generateTokens(userId: number) {
-        const accessToken = this.jwtService.sign(
-          { sub: userId},
-          { secret: jwtConstant.secret, expiresIn: '15m' },
-        );
-        return { accessToken };
+  //todo to generate token
+  async generateTokens(payload: PayloadDto) {
+    try {
+      const accessToken = await this.jwtService.signAsync(payload);
+      const refreshToken = await this.jwtService.signAsync(payload, {
+        expiresIn: process.env.REFRESH_JWT_EXPIRED,
+      });
+      return { accessToken, refreshToken };
+    } catch (error) {
+      console.log("found you")
+      throw new HttpException(`error: ${error}`, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  //todo refresh token
+  async refreshToken(refreshToken: string) {
+    try {
+      console.log(process.env.REFRESH_JWT_EXPIRED)
+      const payload: PayloadDto = await this.jwtService.verifyAsync(refreshToken);
+      const user = await this.userService.findOne(payload.sub);
+      if(!user){
+        throw new HttpException('user not found', HttpStatus.BAD_REQUEST)
       }
-
+      return this.generateTokens({ sub: user.id, role: user.role });
+    } catch (error) {
+      console.log(error);
+      throw new UnauthorizedException();
+    }
+  }
 }

@@ -1,13 +1,18 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, Request, UseGuards } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { LoginDto, LoginProperty } from './dto/type.dto';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { LoginDto } from './dto/type.dto';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
+import { RolesGuard } from './roles.guard';
+import { RoleEnum } from 'src/config/contants';
+import { Roles } from './roles.decorator';
+import { UsersService } from 'src/users/users.service';
 @ApiTags('Auth')
+@ApiBearerAuth()
 @Controller('auth')
 export class AuthController {
 
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService, private readonly userService: UsersService) {}
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -29,7 +34,7 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Get('me')
   async getMe(@Request() req){
-    return req.user;
+    return this.userService.findOne(req.user.sub);
   }
 
 
@@ -39,7 +44,35 @@ export class AuthController {
   }
 
   @Post('refresh')
-  async refreshToken() {
-    return 'token is refreshed';
+  @ApiOperation({ summary: 'generate new access token'})
+  @UseGuards(AuthGuard)
+  @ApiBody({
+    schema: {
+      example: {
+        refreshToken: 'string',
+      },
+    },
+  })
+  @ApiOperation({ summary: 'refresh token' })
+  async refresh(@Body() body: { refreshToken: string }) {
+    console.log(body.refreshToken);
+    const token = await this.authService.refreshToken(body.refreshToken);
+    return token;
+  }
+
+  @Get('user')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(RoleEnum.USER)
+  @HttpCode(HttpStatus.OK)
+  async testUser() {
+    return 'Allow Access!';
+  }
+
+  @Get('admin')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(RoleEnum.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  async testAdmin() {
+    return 'Allow Access!';
   }
 }

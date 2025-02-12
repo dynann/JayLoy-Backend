@@ -1,19 +1,18 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { Prisma, ROLE } from "@prisma/client";
 import { createZodDto } from "nestjs-zod";
+import { RoleEnum } from "src/config/contants";
 import { z } from "zod";
 
 const LoginSchema = z.object({
-    email: z.string().describe('dynann@gmail.com'),
-    password: z.string().describe('hashedpassword'),
+    email: z.string().email(),
+    password: z.string().min(8),
 })
 
 export class LoginDto extends createZodDto(LoginSchema) {}
 
-export class LoginProperty {
+const PayloadSchema = z.object({
+    sub: z.number(),
+    role: z.nativeEnum(ROLE)
+})
 
-    @ApiProperty({ example: 'dynann@gmail.com' })
-    email: string;
-
-    @ApiProperty({ example: 'hashedpassword' })
-    password: string;
-}
+export class PayloadDto extends createZodDto(PayloadSchema) {}
