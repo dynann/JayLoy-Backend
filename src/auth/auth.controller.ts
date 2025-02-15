@@ -7,6 +7,7 @@ import { RolesGuard } from './roles.guard';
 import { RoleEnum } from 'src/config/contants';
 import { Roles } from './roles.decorator';
 import { UsersService } from 'src/users/users.service';
+import { GetUserDto } from 'src/users/dto/create-user.dto';
 @ApiTags('Auth')
 @ApiBearerAuth()
 @Controller('auth')
@@ -32,6 +33,8 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
+  @ApiProperty({ title: 'get my profile' , type: GetUserDto })
+  @ApiResponse({ status: 200, type: GetUserDto })
   @Get('me')
   async getMe(@Request() req){
     return this.userService.findOne(req.user.sub);
