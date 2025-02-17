@@ -27,7 +27,7 @@ enum ROLE {
   SYSTEM
 }
 
-enum CATEGORY {
+enum TYPE {
   EXPENSE
   INCOME
   TRANSFER
@@ -36,14 +36,14 @@ enum CATEGORY {
 
 model User {
   id Int @id @default(autoincrement())
-  firstName String?
-  lastName String?
-  username String? @unique
-  email String @unique
-  password String
+  firstName String? @db.VarChar(255)
+  lastName String? @db.VarChar(255)
+  username String? @unique @db.VarChar(255)
+  email String @unique @db.VarChar(255)
+  password String @db.VarChar(255)
   dateOfBirth DateTime?
-  profileURL String?
-  gender GENDER @default(UNSPECIFY)
+  profileURL String? @db.VarChar(255)
+  gender GENDER @default(UNSPECIFY) 
   createdAt DateTime @default(now())
   deletedAt DateTime?
   role ROLE @default(USER)
@@ -54,7 +54,7 @@ model User {
 
 model Budget {
   id Int @id @default(autoincrement())
-  amount Int
+  amount BigInt
   startDate DateTime
   endDate DateTime
   user User @relation(fields: [userID], references: [id])
@@ -63,8 +63,8 @@ model Budget {
 
 model Account {
   id Int @id @default(autoincrement())
-  name String
-  balance Int
+  name String @db.VarChar(255)
+  balance BigInt
   Transactions Transaction[]
   user User @relation(fields: [userID], references: [id])
   userID Int
@@ -74,15 +74,15 @@ model Account {
 
 model Currency {
   id Int @id @default(autoincrement())
-  name String
+  name String @db.VarChar(255)
   accounts Account[]
 }
 
 model Transaction {
   id Int @id @default(autoincrement())
   amount Int
-  type CATEGORY
-  description String
+  type TYPE
+  description String @db.VarChar(255)
   category Category? @relation(fields: [categoryID], references: [id])
   categoryID Int?
   account Account? @relation(fields: [accountID], references: [id])
@@ -92,8 +92,8 @@ model Transaction {
 model Category {
   id Int @id @default(autoincrement())
   name String 
-  type CATEGORY
+  type TYPE
   user User? @relation(fields: [userID], references: [id])
-  userID Int @unique
+  userID Int
   Transactions Transaction[]
 }

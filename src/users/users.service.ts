@@ -25,7 +25,20 @@ export class UsersService {
 
   async findAll() {
     try {
-      const users = await this.prisma.user.findMany();
+      const users = await this.prisma.user.findMany({
+        select: {
+        id: true,
+        email: true,
+        username: true,
+        firstName: true,
+        lastName: true,
+        dateOfBirth: true,
+        role: true,
+        createdAt: true,
+        deletedAt: true,
+        gender: true,
+        password: false,
+      },});
       return users;
     } catch (error) {
       throw new HttpException(`Error : ${error}`, HttpStatus.BAD_REQUEST);
@@ -36,7 +49,23 @@ export class UsersService {
     try {
       const user = await this.prisma.user.findUnique({
         where: { id: id },
+        select: {
+          id: true,
+          email: true,
+          username: true,
+          firstName: true,
+          lastName: true,
+          dateOfBirth: true,
+          role: true,
+          createdAt: true,
+          deletedAt: true,
+          gender: true,
+          password: false,
+        },
       });
+      if(!user){
+        throw new HttpException('user not found', HttpStatus.NOT_FOUND)
+      }
       return user;
     } catch (error) {
       throw new HttpException(`Error: ${error}`, HttpStatus.BAD_REQUEST);
@@ -47,15 +76,12 @@ export class UsersService {
     try {
       const user = await this.findOne(id);
       if (!user) {
-        return null;
+        throw new HttpException('user not found', HttpStatus.NOT_FOUND)
       }
       const updateUser = await this.prisma.user.update({
         where: { id: id },
         data: updateUserDto,
       });
-      if (!updateUser) {
-        return null;
-      }
       return updateUser;
     } catch (error) {
       throw new HttpException(`Error${error}`, HttpStatus.BAD_REQUEST);

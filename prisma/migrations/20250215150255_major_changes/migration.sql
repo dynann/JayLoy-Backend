@@ -5,18 +5,18 @@ CREATE TYPE "GENDER" AS ENUM ('MALE', 'FEMALE', 'UNSPECIFY');
 CREATE TYPE "ROLE" AS ENUM ('ADMIN', 'USER', 'SYSTEM');
 
 -- CreateEnum
-CREATE TYPE "CATEGORY" AS ENUM ('EXPENSE', 'INCOME', 'TRANSFER');
+CREATE TYPE "TYPE" AS ENUM ('EXPENSE', 'INCOME', 'TRANSFER');
 
 -- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
-    "firstName" TEXT,
-    "lastName" TEXT,
-    "username" TEXT,
-    "email" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
+    "firstName" VARCHAR(255),
+    "lastName" VARCHAR(255),
+    "username" VARCHAR(255),
+    "email" VARCHAR(255) NOT NULL,
+    "password" VARCHAR(255) NOT NULL,
     "dateOfBirth" TIMESTAMP(3),
-    "profileURL" TEXT,
+    "profileURL" VARCHAR(255),
     "gender" "GENDER" NOT NULL DEFAULT 'UNSPECIFY',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "deletedAt" TIMESTAMP(3),
@@ -28,7 +28,7 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "Budget" (
     "id" SERIAL NOT NULL,
-    "amount" INTEGER NOT NULL,
+    "amount" BIGINT NOT NULL,
     "startDate" TIMESTAMP(3) NOT NULL,
     "endDate" TIMESTAMP(3) NOT NULL,
     "userID" INTEGER NOT NULL,
@@ -39,8 +39,8 @@ CREATE TABLE "Budget" (
 -- CreateTable
 CREATE TABLE "Account" (
     "id" SERIAL NOT NULL,
-    "name" TEXT NOT NULL,
-    "balance" INTEGER NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
+    "balance" BIGINT NOT NULL,
     "userID" INTEGER NOT NULL,
     "currencyID" INTEGER NOT NULL,
 
@@ -50,7 +50,7 @@ CREATE TABLE "Account" (
 -- CreateTable
 CREATE TABLE "Currency" (
     "id" SERIAL NOT NULL,
-    "name" TEXT NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
 
     CONSTRAINT "Currency_pkey" PRIMARY KEY ("id")
 );
@@ -59,8 +59,8 @@ CREATE TABLE "Currency" (
 CREATE TABLE "Transaction" (
     "id" SERIAL NOT NULL,
     "amount" INTEGER NOT NULL,
-    "type" "CATEGORY" NOT NULL,
-    "description" TEXT NOT NULL,
+    "type" "TYPE" NOT NULL,
+    "description" VARCHAR(255) NOT NULL,
     "categoryID" INTEGER,
     "accountID" INTEGER,
 
@@ -71,7 +71,7 @@ CREATE TABLE "Transaction" (
 CREATE TABLE "Category" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "type" "CATEGORY" NOT NULL,
+    "type" "TYPE" NOT NULL,
     "userID" INTEGER NOT NULL,
 
     CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
@@ -82,9 +82,6 @@ CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Category_userID_key" ON "Category"("userID");
 
 -- AddForeignKey
 ALTER TABLE "Budget" ADD CONSTRAINT "Budget_userID_fkey" FOREIGN KEY ("userID") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
