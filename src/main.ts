@@ -5,20 +5,24 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   //api swagger configuration
   const config = new DocumentBuilder()
-    .setTitle('Aha Smart')
+    .setTitle('Jay Luy API')
     .setDescription(
-      'this is aha smart api, you can do database manipulation through this ui',
+      'this is jay luy api, you can do database manipulation through this ui',
     )
     .setVersion('1.0')
-    .addTag('aha smart')
+    .addTag('Expense Tracker')
+    .addBearerAuth()
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, documentFactory, {
     customfavIcon:
       'https://res-console.cloudinary.com/dlbbfck9n/media_explorer_thumbnails/e21d9307936995dc631dc520ee985775/detailed',
-    customSiteTitle: 'AhaSmartAPI',
+    customSiteTitle: 'JayLuy API',
     customCss: '.topbar { display: none; }',
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
   });
   await app.listen(process.env.PORT ?? 3000);
   console.log(`app run on http://localhost:3000`);
