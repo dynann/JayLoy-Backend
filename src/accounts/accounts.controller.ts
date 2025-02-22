@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { CreateAccountDto, GetAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Prisma } from '@prisma/client';
+import { CreateTransactionDto, GetTransactionDto } from 'src/transactions/dto/create-transaction.dto';
 
 @ApiTags('Accounts')
 @ApiBearerAuth()
@@ -26,12 +27,25 @@ export class AccountsController {
   async findAll() {
     return this.accountsService.findAll();
   }
+  @Post('/insert')
+  @ApiOperation({ summary: 'insert account transaction'})
+  @ApiResponse({ status: 200, type: CreateTransactionDto})
+  async insertTransaction(@Request() req, @Param('id') id: string, @Body() createTransactionDTO: CreateTransactionDto ) {
+    return await this.accountsService.insertTransaction(req.user.sub, createTransactionDTO);
+  }
+
+  @Get('/transaction')
+  @ApiOperation({ summary: 'get account transaction'})
+  @ApiResponse({ status: 200, type: [GetTransactionDto]})
+  async findAllTransaction(@Request() req, @Param('id') id: string) {
+    return this.accountsService.findAllAccountTransaction(req.user.sub);
+  }
 
   @Get(':id')
   @ApiOperation({ summary: 'get one account'})
   @ApiResponse({ status: 200, type: GetAccountDto})
   async findOne(@Param('id') id: string) {
-    return this.accountsService.findOne(+id);
+    return this.accountsService.findByUserId(+id);
   }
 
   @Patch(':id')

@@ -1,11 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UpdateBalanceZod } from './dto/create-account.dto';
+import { GetAccountDto, UpdateBalanceZod } from './dto/create-account.dto';
+import { TransactionsService } from 'src/transactions/transactions.service';
+import { CreateTransactionDto } from 'src/transactions/dto/create-transaction.dto';
 
 @Injectable()
 export class AccountsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private transactionService: TransactionsService) {}
 
   async create(createAccountDto: Prisma.AccountCreateInput) {
     try {
@@ -18,6 +20,32 @@ export class AccountsService {
     }
   }
 
+  async insertTransaction(id: number, createTransactionDto: CreateTransactionDto){
+    const accountId = (await this.findByUserId(id)).id;
+    const transaction = await this.transactionService.create({
+      amount: createTransactionDto.amount,
+      type: createTransactionDto.type,
+      description: createTransactionDto.description,
+      category: {
+        connect: {
+          id: createTransactionDto.categoryID
+        }
+      },
+      account: {
+        connect: {
+          id: accountId,
+        }
+      }
+    }
+    )
+    const updateAccountBalance = await this.updateBalance(accountId, transaction.amount);
+    return "Succesfully Created";
+  }
+  async findAllAccountTransaction(id: number){
+    const accountId = (await this.findByUserId(id)).id;
+    return await this.transactionService.findAllByAccountId(accountId);
+  }
+
   async findAll() {
     try {
       return await this.prisma.account.findMany()
@@ -26,11 +54,12 @@ export class AccountsService {
     }
   }
 
-  async findOne(id: number) {
+  async findByUserId(id: number) {
     try {
-      return await this.prisma.account.findUnique({ where: {
-        id: id
+      const account = await this.prisma.account.findFirst({ where: {
+        userID: id
       }})
+      return new GetAccountDto(account);
     } catch (error) {
       throw new HttpException(`Error Occurred: ${error}`, HttpStatus.BAD_REQUEST)
     }
@@ -38,7 +67,7 @@ export class AccountsService {
 
   async update(id: number, updateAccountDto: Prisma.AccountUpdateInput) {
     try {
-      const res = await this.findOne(id)
+      const res = await this.findByUserId(id)
       if(!res){
         throw new HttpException('account already exists', HttpStatus.BAD_REQUEST)
       }
@@ -61,14 +90,12 @@ export class AccountsService {
     }
   }
 
-  async updateBalance(data: UpdateBalanceZod){
-    try {
-      //todo using transaction to lock the row 
+  async updateBalance(id: number, amount: bigint){
+    try { 
        return await this.prisma.$transaction(async (prisma) => {
        const record = await prisma.account.findUnique({
         where: {
-          id: data.account,
-          userID: data.user,
+          id: id,
         },
         select: { id: true, balance: true }
        })
@@ -76,8 +103,8 @@ export class AccountsService {
         throw new HttpException('no account was found', HttpStatus.NOT_FOUND)
        }
        return await prisma.account.update({
-        where: { id: data.account },
-        data: { balance: data.balance }
+        where: { id: id },
+        data: { balance: record.balance + amount }
        })
       })
     } catch (error) {

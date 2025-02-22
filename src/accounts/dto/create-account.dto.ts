@@ -10,11 +10,20 @@ export class CreateAccountDto {
 }
 
 export class GetAccountDto {
+    @ApiProperty({ example: 1 })
+    id: number
+
     @ApiProperty({ example: 'string' })
     name: string
 
     @ApiProperty({ example: 'number' })
-    balance: bigint
+    balance: number
+    
+    constructor(account: any){
+        this.id = account.id;
+        this.name = account.name;
+        this.balance = Number(account.balance);
+    }
 }
 
 const updateBalanceZod = z.object({

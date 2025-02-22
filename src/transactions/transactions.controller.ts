@@ -1,20 +1,23 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { Prisma } from '@prisma/client';
 
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Post()
-  create(@Body() createTransactionDto: CreateTransactionDto) {
+  create(@Body() createTransactionDto: Prisma.TransactionCreateInput) {
     return this.transactionsService.create(createTransactionDto);
   }
 
   @Get()
   findAll() {
     return this.transactionsService.findAll();
+  }
+  @Get('/findByAccountId/:id')
+  findByAccountId(@Param('id') id: string) {
+    return this.transactionsService.findAllByAccountId(+id);
   }
 
   @Get(':id')
@@ -23,7 +26,7 @@ export class TransactionsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTransactionDto: UpdateTransactionDto) {
+  update(@Param('id') id: string, @Body() updateTransactionDto: Prisma.TransactionUpdateInput) {
     return this.transactionsService.update(+id, updateTransactionDto);
   }
 

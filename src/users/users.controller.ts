@@ -18,12 +18,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
-
+import { Public } from 'src/auth/public.decorator';
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-
+  
+  @Public()
   @Post()
   @ApiProperty({ title: 'create one user', type: CreateUserDto })
   @ApiOperation({ summary: 'create one user' })
