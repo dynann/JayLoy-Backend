@@ -47,6 +47,7 @@ model User {
   createdAt DateTime @default(now())
   deletedAt DateTime?
   role ROLE @default(USER)
+  refreshToken String? @db.VarChar(255)
   Categories Category[]
   Budgets Budget[]
   Accounts Account[]
@@ -83,6 +84,7 @@ model Transaction {
   amount BigInt
   type TYPE
   description String @db.VarChar(255)
+  date DateTime @default(now()) // I added this line
   category Category @relation(fields: [categoryID], references: [id])
   categoryID Int
   account Account @relation(fields: [accountID], references: [id])

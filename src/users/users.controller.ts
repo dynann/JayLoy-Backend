@@ -33,6 +33,7 @@ export class UsersController {
     return this.usersService.createOne(createUserDto);
   }
 
+  @Public()
   @Get()
   @ApiOperation({ summary: 'get all users' })
   @ApiResponse({

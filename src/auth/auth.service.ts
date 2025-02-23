@@ -36,6 +36,7 @@ export class AuthService {
       const refreshToken = await this.jwtService.signAsync(payload, {
         expiresIn: process.env.REFRESH_JWT_EXPIRED,
       });
+      await this.userService.updateRefreshToken(payload.sub, refreshToken)
       return { accessToken, refreshToken };
     } catch (error) {
       console.log("found you")
@@ -52,7 +53,9 @@ export class AuthService {
       if(!user){
         throw new HttpException('user not found', HttpStatus.BAD_REQUEST)
       }
-      return this.generateTokens({ sub: user.id, role: user.role });
+      if (user.refreshToken === refreshToken){
+        return this.generateTokens({ sub: user.id, role: user.role });
+      }
     } catch (error) {
       console.log(error);
       throw new UnauthorizedException();

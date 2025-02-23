@@ -58,6 +58,7 @@ export class UsersService {
         createdAt: true,
         deletedAt: true,
         gender: true,
+        refreshToken: true,
         password: false,
       },});
       return users;
@@ -81,7 +82,9 @@ export class UsersService {
           createdAt: true,
           deletedAt: true,
           gender: true,
+          refreshToken: true,
           password: false,
+
         },
       });
       if(!user){
@@ -130,6 +133,14 @@ export class UsersService {
         email: email,
       },
     });
+  }
+  
+  async updateRefreshToken(id: number, refreshToken: string){
+    const user = await this.prisma.user.update({
+      where: {id: id},
+      data: {refreshToken: refreshToken}
+    })
+    return "Updated"
   }
   async validateUser(email: string, password: string) {
     try {

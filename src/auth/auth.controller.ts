@@ -47,9 +47,9 @@ export class AuthController {
     return 'this will log user in';
   }
 
+  @Public()
   @Post('refresh')
   @ApiOperation({ summary: 'generate new access token'})
-  @UseGuards(AuthGuard)
   @ApiBody({
     schema: {
       example: {
