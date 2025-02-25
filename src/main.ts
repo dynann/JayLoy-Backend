@@ -1,8 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Public } from './auth/public.decorator';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors({
+    origin: true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'Accept',
+    ],
+  });
   //api swagger configuration
   const config = new DocumentBuilder()
     .setTitle('Jay Luy API')
@@ -10,8 +22,13 @@ async function bootstrap() {
       'this is jay luy api, you can do database manipulation through this ui',
     )
     .setVersion('1.0')
+    .addBearerAuth({
+      type: 'http', 
+      scheme: 'bearer', 
+      bearerFormat: 'JWT', // This is optional but adds clarity
+      },
+      'JWT',)
     .addTag('Expense Tracker')
-    .addBearerAuth()
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
@@ -24,7 +41,8 @@ async function bootstrap() {
       persistAuthorization: true,
     },
   });
-  await app.listen(process.env.PORT ?? 3000);
-  console.log(`app run on http://localhost:3000`);
+
+  await app.listen(process.env.PORT ?? 4001);
+  console.log(`app run on http://localhost:4001`);
 }
 bootstrap();

@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCurrencyDto } from './dto/create-currency.dto';
 import { UpdateCurrencyDto } from './dto/update-currency.dto';
-
+import { PrismaService } from 'src/prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 @Injectable()
 export class CurrenciesService {
-  create(createCurrencyDto: CreateCurrencyDto) {
-    return 'This action adds a new currency';
+  constructor(private prisma: PrismaService){}
+
+  async create(createCurrencyDto: Prisma.CurrencyCreateInput) {
+    return await this.prisma.currency.create({data: createCurrencyDto});
   }
 
   findAll() {
