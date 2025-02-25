@@ -59,7 +59,6 @@ export class AuthController {
   })
   @ApiOperation({ summary: 'refresh token' })
   async refresh(@Body() body: { refreshToken: string }) {
-    console.log(body.refreshToken);
     const token = await this.authService.refreshToken(body.refreshToken);
     return token;
   }

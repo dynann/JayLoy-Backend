@@ -30,14 +30,14 @@ export class AccountsController {
   @Post('/insert')
   @ApiOperation({ summary: 'insert account transaction'})
   @ApiResponse({ status: 200, type: CreateTransactionDto})
-  async insertTransaction(@Request() req, @Param('id') id: string, @Body() createTransactionDTO: CreateTransactionDto ) {
+  async insertTransaction(@Request() req, @Body() createTransactionDTO: CreateTransactionDto ) {
     return await this.accountsService.insertTransaction(req.user.sub, createTransactionDTO);
   }
 
   @Get('/transaction')
   @ApiOperation({ summary: 'get account transaction'})
   @ApiResponse({ status: 200, type: [GetTransactionDto]})
-  async findAllTransaction(@Request() req, @Param('id') id: string) {
+  async findAllTransaction(@Request() req) {
     return this.accountsService.findAllAccountTransaction(req.user.sub);
   }
 

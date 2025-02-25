@@ -4,7 +4,17 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Public } from './auth/public.decorator';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors(); // Enable CORS
+  app.enableCors({
+    origin: true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'Accept',
+    ],
+  });
   //api swagger configuration
   const config = new DocumentBuilder()
     .setTitle('Jay Luy API')
@@ -32,7 +42,7 @@ async function bootstrap() {
     },
   });
 
-  await app.listen(process.env.PORT ?? 3001);
-  console.log(`app run on http://localhost:3001`);
+  await app.listen(process.env.PORT ?? 4001);
+  console.log(`app run on http://localhost:4001`);
 }
 bootstrap();

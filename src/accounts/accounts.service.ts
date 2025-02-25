@@ -21,11 +21,13 @@ export class AccountsService {
   }
 
   async insertTransaction(id: number, createTransactionDto: CreateTransactionDto){
-    const accountId = (await this.findByUserId(id)).id;
-    const transaction = await this.transactionService.create({
+    try {
+      const accountId = (await this.findByUserId(id)).id;
+      const transaction = await this.transactionService.create({
       amount: createTransactionDto.amount,
       type: createTransactionDto.type,
       description: createTransactionDto.description,
+      date: new Date(createTransactionDto.date),
       category: {
         connect: {
           id: createTransactionDto.categoryID
@@ -40,6 +42,10 @@ export class AccountsService {
     )
     const updateAccountBalance = await this.updateBalance(accountId, transaction.amount);
     return "Succesfully Created";
+    }
+    catch (err){
+      throw new HttpException(`Error occured: ${err}`, HttpStatus.BAD_REQUEST);
+    }
   }
   async findAllAccountTransaction(id: number){
     const accountId = (await this.findByUserId(id)).id;

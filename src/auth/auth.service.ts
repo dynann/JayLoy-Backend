@@ -47,7 +47,7 @@ export class AuthService {
   //todo refresh token
   async refreshToken(refreshToken: string) {
     try {
-      console.log(process.env.REFRESH_JWT_EXPIRED)
+  
       const payload: PayloadDto = await this.jwtService.verifyAsync(refreshToken);
       const user = await this.userService.findOne(payload.sub);
       if(!user){

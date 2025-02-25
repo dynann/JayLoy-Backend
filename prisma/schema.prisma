@@ -84,7 +84,7 @@ model Transaction {
   amount BigInt
   type TYPE
   description String @db.VarChar(255)
-  date DateTime @default(now()) // I added this line
+  date DateTime @db.Date @default(now()) 
   category Category @relation(fields: [categoryID], references: [id])
   categoryID Int
   account Account @relation(fields: [accountID], references: [id])

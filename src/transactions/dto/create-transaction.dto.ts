@@ -9,6 +9,8 @@ export class CreateTransactionDto {
     type: TypeEnum;
     @ApiProperty({ example: 'I bought cake' })
     description: string;
+    @ApiProperty({  example: '2025-12-31'})
+    date: string;
     @ApiProperty({ example: 1 })
     categoryID: number;
 }
@@ -22,6 +24,8 @@ export class GetTransactionDto {
     type: TypeEnum;
     @ApiProperty({ example: 'I bought cake' })
     description: string;
+    @ApiProperty({  example: '2025-12-31'})
+    date: String;
     @ApiProperty({ example: 1 })
     categoryID: number;
     @ApiProperty({ example: 1 })
@@ -31,6 +35,7 @@ export class GetTransactionDto {
         this.amount = Number(transaction.amount);
         this.type = transaction.type;
         this.description = transaction.description;
+        this.date = transaction.date;
         this.categoryID = transaction.categoryID;
         this.accountID = transaction.accountID;
     }
