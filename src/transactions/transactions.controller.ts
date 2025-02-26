@@ -1,8 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { Prisma } from '@prisma/client';
+import { ApiBearerAuth, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { IS_PUBLIC_KEY, Public } from 'src/config/contants';
 
 @Controller('transactions')
+@ApiBearerAuth()
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
@@ -11,9 +15,33 @@ export class TransactionsController {
     return this.transactionsService.create(createTransactionDto);
   }
 
+  @Public()
   @Get()
-  findAll() {
-    return this.transactionsService.findAll();
+  @ApiQuery({ name: 'date', required: false, type: String, example: '2024-02-26' })
+  @ApiQuery({ name: 'month', required: false, type: String, example: '2024-02' })
+  @ApiResponse({ status: 200, description: 'Successful response' })
+  findAll(@Query('date') date?: string, @Query('month') month?: string) {
+    let where: any = {}
+    console.log(date)
+    if(date) {
+      where.date = {
+        gte: new Date(date + 'T00:00:00.000Z'),
+        lte: new Date(date + 'T23:59:59.999Z')
+      }
+      console.log(where)
+    }
+    if(month) {
+      const startOfMonth = new Date(month + '-01T00:00:00.000Z');
+      const endOfMonth = new Date(startOfMonth);
+      endOfMonth.setMonth(startOfMonth.getMonth() + 1, 0);
+      where.date = {
+        gte: startOfMonth,
+        lte: new Date(endOfMonth.getFullYear(), endOfMonth.getMonth(), endOfMonth.getDate() + 1),
+      };
+
+     console.log(where)
+    }
+    return this.transactionsService.findAll(where);
   }
   @Get('/findByAccountId/:id')
   findByAccountId(@Param('id') id: string) {

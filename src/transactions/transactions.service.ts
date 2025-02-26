@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { pid } from 'process';
-import { AccountsService } from 'src/accounts/accounts.service';
 import { GetTransactionDto } from './dto/create-transaction.dto';
 @Injectable()
 export class TransactionsService {
@@ -13,9 +11,13 @@ export class TransactionsService {
     return transaction;
   }
 
-  async findAll() {
-    const transaction = await this.prisma.transaction.findMany();
-    return transaction;
+  async findAll(where: any) {
+    console.log('query:', where)
+    const transaction = await this.prisma.transaction.findMany({ where });
+    return transaction.map(tx => ({
+      ...tx,
+      amount: tx.amount ? tx.amount.toString() : tx.amount,
+    }));
   }
   async findAllByAccountId(id: number) {
     const transaction = await this.prisma.transaction.findMany({

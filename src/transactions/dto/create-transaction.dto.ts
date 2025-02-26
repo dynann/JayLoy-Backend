@@ -40,3 +40,12 @@ export class GetTransactionDto {
         this.accountID = transaction.accountID;
     }
 }
+
+export class DateQueryDto {
+    @ApiProperty({
+      description: 'Date in YYYY-MM-DD format',
+      example: '2025-02-25',
+      required: false,
+    })
+    date!: string;
+  }
