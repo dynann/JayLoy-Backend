@@ -24,7 +24,7 @@ export class AuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
   
     if (!token) {
-      console.log(" you can't do it by the way ")
+      console.log(" token is expired or invalid ")
       throw new UnauthorizedException();
     }
     try {
