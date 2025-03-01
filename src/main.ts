@@ -22,12 +22,16 @@ async function bootstrap() {
       'this is jay luy api, you can do database manipulation through this ui',
     )
     .setVersion('1.0')
-    .addBearerAuth({
-      type: 'http', 
-      scheme: 'bearer', 
-      bearerFormat: 'JWT', // This is optional but adds clarity
+    .addBearerAuth(
+      { 
+        name: 'Authorization',
+        bearerFormat: 'Bearer',
+        scheme: 'Bearer',
+        type: 'http',
+        in: 'Header'
       },
-      'JWT',)
+      'bearer',
+    )
     .addTag('Expense Tracker')
     .build();
 
