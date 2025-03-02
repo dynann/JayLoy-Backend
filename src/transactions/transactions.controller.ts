@@ -1,9 +1,10 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { Prisma } from '@prisma/client';
-import { ApiBearerAuth, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiResponse, ApiBody, ApiOperation } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { IS_PUBLIC_KEY, Public } from 'src/config/contants';
+import { UpdateTransactionDto } from './dto/update-transaction.dto';
 
 @Controller('transactions')
 @ApiBearerAuth()
@@ -54,7 +55,10 @@ export class TransactionsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTransactionDto: Prisma.TransactionUpdateInput) {
+  @ApiOperation({ summary: 'Update Transaction'})
+  @ApiBody({ type: UpdateTransactionDto})
+  @ApiResponse({ status: 200, type: UpdateTransactionDto })
+  update(@Param('id') id: string, @Body() updateTransactionDto: UpdateTransactionDto) {
     return this.transactionsService.update(+id, updateTransactionDto);
   }
 
