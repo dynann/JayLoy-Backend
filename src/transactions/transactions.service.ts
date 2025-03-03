@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { GetTransactionDto } from './dto/create-transaction.dto';
+import { UpdateTransactionDto } from './dto/update-transaction.dto';
 @Injectable()
 export class TransactionsService {
   constructor(private prisma: PrismaService){}
@@ -45,13 +46,19 @@ export class TransactionsService {
     })
     return transaction;
   }
-  
-  async update(id: number, updateTransactionDto: Prisma.TransactionUpdateInput) {
+
+  async update(id: number, updateTransactionDto: UpdateTransactionDto) {
     const updateTransaction = await this.prisma.transaction.update({
       where: {id: id},
-      data: updateTransactionDto,
+      data: {
+        amount: updateTransactionDto.amount,
+        type: updateTransactionDto.type,
+        description: updateTransactionDto.description,
+        date: new Date(updateTransactionDto.date),
+        categoryID: updateTransactionDto.categoryID
+      },
     })
-    return updateTransaction;
+    return "Successfully updated";
   }
   async remove(id: number) {
     const transaction = await this.prisma.transaction.delete({
