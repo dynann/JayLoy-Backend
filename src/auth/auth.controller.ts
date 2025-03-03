@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Request, UseGuards, Patch } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/type.dto';
 import { AuthService } from './auth.service';
@@ -41,10 +41,11 @@ export class AuthController {
     return this.userService.findOne(req.user.sub);
   }
 
-  @Public()
-  @Post('logout')
-  async logout() {
-    return 'this will log user in';
+  
+  @Patch('logout')
+  @HttpCode(HttpStatus.OK)
+  async logout(@Request() req) {
+    return await this.authService.logout(req.user.sub);
   }
 
   @Public()
@@ -79,4 +80,7 @@ export class AuthController {
   async testAdmin() {
     return 'Allow Access!';
   }
+
+  
+
 }

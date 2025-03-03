@@ -164,4 +164,11 @@ export class UsersService {
       );
     }
   }
+
+  async removeRefreshToken(userID: number){
+    const user = await this.prisma.user.update({
+      where: {id: userID},
+      data: {refreshToken: null}
+    })
+  }
 }

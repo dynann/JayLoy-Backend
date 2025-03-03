@@ -61,4 +61,9 @@ export class AuthService {
       throw new UnauthorizedException();
     }
   }
+
+  async logout(userID: number){
+    const user = await this.userService.removeRefreshToken(userID);
+    return "Logged Out";
+  }
 }
