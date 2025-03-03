@@ -58,6 +58,6 @@ export class TransactionsService {
         id: id,
       }
     })
-    return transaction;
+    return "Successfully deleted";
   }
 }
