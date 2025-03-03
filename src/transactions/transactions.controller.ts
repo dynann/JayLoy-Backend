@@ -1,13 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Request } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { Prisma } from '@prisma/client';
-import { ApiBearerAuth, ApiQuery, ApiResponse, ApiBody, ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags, ApiBody, ApiOperation } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { IS_PUBLIC_KEY, Public } from 'src/config/contants';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 
-@Controller('transactions')
+ApiTags('Transactions')
 @ApiBearerAuth()
+@Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
@@ -16,20 +17,20 @@ export class TransactionsController {
     return this.transactionsService.create(createTransactionDto);
   }
 
-  @Public()
   @Get()
   @ApiQuery({ name: 'date', required: false, type: String, example: '2024-02-26' })
   @ApiQuery({ name: 'month', required: false, type: String, example: '2024-02' })
   @ApiResponse({ status: 200, description: 'Successful response' })
-  findAll(@Query('date') date?: string, @Query('month') month?: string) {
+  findAll(@Request() req, @Query('date') date?: string, @Query('month') month?: string, ) {
     let where: any = {}
-    console.log(date)
+    // console.log(date)
+    // console.log(req.user.sub)
     if(date) {
       where.date = {
         gte: new Date(date + 'T00:00:00.000Z'),
         lte: new Date(date + 'T23:59:59.999Z')
       }
-      console.log(where)
+      // console.log(where)
     }
     if(month) {
       const startOfMonth = new Date(month + '-01T00:00:00.000Z');
@@ -40,9 +41,9 @@ export class TransactionsController {
         lte: new Date(endOfMonth.getFullYear(), endOfMonth.getMonth(), endOfMonth.getDate() + 1),
       };
 
-     console.log(where)
+    //  console.log(where)
     }
-    return this.transactionsService.findAll(where);
+    return this.transactionsService.findAll(req.user.sub, where);
   }
   @Get('/findByAccountId/:id')
   findByAccountId(@Param('id') id: string) {

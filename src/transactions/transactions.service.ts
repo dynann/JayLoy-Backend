@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { GetTransactionDto } from './dto/create-transaction.dto';
@@ -11,8 +11,16 @@ export class TransactionsService {
     const transaction = await this.prisma.transaction.create({data: createTransactionDto});
     return transaction;
   }
-
-  async findAll(where: any) {
+  
+  async findAll(userID: number ,where: any) {
+    // console.log(userID)
+    const account = await this.prisma.account.findFirst({
+      where: {
+        userID: userID
+      }
+    })
+    where.accountID = account.id
+    // console.log("accountID: ", where.id)
     console.log('query:', where)
     const transaction = await this.prisma.transaction.findMany({ where });
     return transaction.map(tx => ({
@@ -20,6 +28,7 @@ export class TransactionsService {
       amount: tx.amount ? tx.amount.toString() : tx.amount,
     }));
   }
+
   async findAllByAccountId(id: number) {
     const transaction = await this.prisma.transaction.findMany({
       where: {
@@ -51,7 +60,6 @@ export class TransactionsService {
     })
     return "Successfully updated";
   }
-
   async remove(id: number) {
     const transaction = await this.prisma.transaction.delete({
       where: {
@@ -59,5 +67,14 @@ export class TransactionsService {
       }
     })
     return transaction;
+  }
+
+  async summarize(userID: number){
+    try {
+      const where: any = {}
+      const transactions = await this.findAll(userID, where)
+    } catch (error) {
+      throw new HttpException(`error occurred: ${error}`, HttpStatus.BAD_REQUEST)
+    }
   }
 }
