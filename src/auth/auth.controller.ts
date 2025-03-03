@@ -33,7 +33,7 @@ export class AuthController {
     const tokens = await this.authService.login(loginDto)
     return tokens
   }
-  @Public()
+
   @ApiProperty({ title: 'get my profile' , type: GetUserDto })
   @ApiResponse({ status: 200, type: GetUserDto })
   @Get('me')
