@@ -17,10 +17,11 @@ CREATE TABLE "User" (
     "password" VARCHAR(255) NOT NULL,
     "dateOfBirth" TIMESTAMP(3),
     "profileURL" VARCHAR(255),
-    "gender" "GENDER" NOT NULL DEFAULT 'UNSPECIFY',
+    "gender" "GENDER" DEFAULT 'UNSPECIFY',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "deletedAt" TIMESTAMP(3),
     "role" "ROLE" NOT NULL DEFAULT 'USER',
+    "refreshToken" VARCHAR(255),
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -58,11 +59,12 @@ CREATE TABLE "Currency" (
 -- CreateTable
 CREATE TABLE "Transaction" (
     "id" SERIAL NOT NULL,
-    "amount" INTEGER NOT NULL,
+    "amount" BIGINT NOT NULL,
     "type" "TYPE" NOT NULL,
     "description" VARCHAR(255) NOT NULL,
-    "categoryID" INTEGER,
-    "accountID" INTEGER,
+    "date" DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "categoryID" INTEGER NOT NULL,
+    "accountID" INTEGER NOT NULL,
 
     CONSTRAINT "Transaction_pkey" PRIMARY KEY ("id")
 );
@@ -72,7 +74,7 @@ CREATE TABLE "Category" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "type" "TYPE" NOT NULL,
-    "userID" INTEGER NOT NULL,
+    "userID" INTEGER,
 
     CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
 );
@@ -93,10 +95,10 @@ ALTER TABLE "Account" ADD CONSTRAINT "Account_userID_fkey" FOREIGN KEY ("userID"
 ALTER TABLE "Account" ADD CONSTRAINT "Account_currencyID_fkey" FOREIGN KEY ("currencyID") REFERENCES "Currency"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_categoryID_fkey" FOREIGN KEY ("categoryID") REFERENCES "Category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_categoryID_fkey" FOREIGN KEY ("categoryID") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_accountID_fkey" FOREIGN KEY ("accountID") REFERENCES "Account"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_accountID_fkey" FOREIGN KEY ("accountID") REFERENCES "Account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Category" ADD CONSTRAINT "Category_userID_fkey" FOREIGN KEY ("userID") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Category" ADD CONSTRAINT "Category_userID_fkey" FOREIGN KEY ("userID") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

@@ -2,9 +2,11 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt'
+import { AccountsService } from 'src/accounts/accounts.service';
+import { Transaction } from 'src/transactions/entities/transaction.entity';
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private accountService: AccountsService) {}
   async createOne(createUserDto: Prisma.UserCreateInput) {
     try {
       const res = await this.prisma.user.findUnique({
@@ -13,9 +15,28 @@ export class UsersService {
       if (res) {
         throw new HttpException('user already exists', HttpStatus.BAD_REQUEST)
       }
-      const hashpassowrd = await bcrypt.hash(createUserDto.password, 10)
-      createUserDto.password = hashpassowrd
+      const hashpassword = await bcrypt.hash(createUserDto.password, 10)
+      createUserDto.password = hashpassword
       const user = await this.prisma.user.create({data: createUserDto})
+      const account = await this.accountService.create(
+        {
+          name: "default-" + user.id,
+          balance: 0,
+          Transactions: {
+            create: [],
+          },
+          user: {
+            connect: {
+              id: user.id,
+            }
+          },
+          currency: {
+            connect: {
+              id: 1,
+            }
+          }
+        }
+      );
       return user
     } catch (error) {
       console.log(error);
@@ -37,6 +58,7 @@ export class UsersService {
         createdAt: true,
         deletedAt: true,
         gender: true,
+        refreshToken: true,
         password: false,
       },});
       return users;
@@ -60,7 +82,9 @@ export class UsersService {
           createdAt: true,
           deletedAt: true,
           gender: true,
+          refreshToken: true,
           password: false,
+
         },
       });
       if(!user){
@@ -110,6 +134,14 @@ export class UsersService {
       },
     });
   }
+  
+  async updateRefreshToken(id: number, refreshToken: string){
+    const user = await this.prisma.user.update({
+      where: {id: id},
+      data: {refreshToken: refreshToken}
+    })
+    return "Updated"
+  }
   async validateUser(email: string, password: string) {
     try {
       const user = await this.prisma.user.findUnique({
@@ -131,5 +163,12 @@ export class UsersService {
         HttpStatus.BAD_REQUEST,
       );
     }
+  }
+
+  async removeRefreshToken(userID: number){
+    const user = await this.prisma.user.update({
+      where: {id: userID},
+      data: {refreshToken: null}
+    })
   }
 }
