@@ -66,7 +66,7 @@ export class TransactionsService {
         id: id,
       }
     })
-    return transaction;
+    return "Successfully deleted";
   }
 
   async summarize(userID: number){
