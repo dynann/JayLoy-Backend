@@ -102,11 +102,28 @@ export class CategoriesService {
     }
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+    try {
+      return await this.prisma.category.update({
+        where: {
+          id: id,
+        },
+        data: updateCategoryDto
+      })
+    } catch (error){
+      throw new HttpException(`error occurred: ${error}`, HttpStatus.BAD_REQUEST)
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(id: number) {
+    try {
+     return await this.prisma.category.delete({
+      where: {
+        id: id
+      }
+     })
+    } catch (error){
+      throw new HttpException(`error occurred: ${error}`, HttpStatus.BAD_REQUEST)
+    }
   }
 }

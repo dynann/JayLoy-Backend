@@ -11,10 +11,6 @@ import { ApiProperty, ApiOperation, ApiBody, ApiTags, ApiBearerAuth, ApiResponse
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
-
-
-
-
   @Post()
   @ApiProperty({ title: 'create one category', type: CreateCategoryDto })
   @ApiOperation({ summary: 'create one category' })
@@ -59,14 +55,18 @@ export class CategoriesController {
     return this.categoriesService.findOne(+id);
   }
 
-  
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
+  @ApiOperation({ summary: 'update one category' })
+  @ApiBody({ type: UpdateCategoryDto })
+  @ApiResponse({ status: 200, type: GetCategoryDto })
+  async update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
     return this.categoriesService.update(+id, updateCategoryDto);
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'delete one category' })
+  @ApiResponse({ status: 200, type: GetCategoryDto })
   remove(@Param('id') id: string) {
     return this.categoriesService.remove(+id);
   }

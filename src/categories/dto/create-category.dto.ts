@@ -16,3 +16,12 @@ export class GetCategoryDto {
     @ApiProperty({example: 1})
     userID: number;
 }
+
+export class classetCategoryDto {
+    @ApiProperty({example: 'Food'})
+    name: string;
+    @ApiProperty({ example: 'EXPENSE'})
+    type: TYPE;
+    @ApiProperty({example: 1})
+    userID: number;
+}
