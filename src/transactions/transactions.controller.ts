@@ -1,20 +1,53 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Request } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { Prisma } from '@prisma/client';
+import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags, ApiBody, ApiOperation } from '@nestjs/swagger';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { IS_PUBLIC_KEY, Public } from 'src/config/contants';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 
+ApiTags('Transactions')
+@ApiBearerAuth()
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Post()
-  create(@Body() createTransactionDto: CreateTransactionDto) {
+  create(@Body() createTransactionDto: Prisma.TransactionCreateInput) {
     return this.transactionsService.create(createTransactionDto);
   }
 
   @Get()
-  findAll() {
-    return this.transactionsService.findAll();
+  @ApiQuery({ name: 'date', required: false, type: String, example: '2024-02-26' })
+  @ApiQuery({ name: 'month', required: false, type: String, example: '2024-02' })
+  @ApiResponse({ status: 200, description: 'Successful response' })
+  findAll(@Request() req, @Query('date') date?: string, @Query('month') month?: string, ) {
+    let where: any = {}
+    // console.log(date)
+    // console.log(req.user.sub)
+    if(date) {
+      where.date = {
+        gte: new Date(date + 'T00:00:00.000Z'),
+        lte: new Date(date + 'T23:59:59.999Z')
+      }
+      // console.log(where)
+    }
+    if(month) {
+      const startOfMonth = new Date(month + '-01T00:00:00.000Z');
+      const endOfMonth = new Date(startOfMonth);
+      endOfMonth.setMonth(startOfMonth.getMonth() + 1, 0);
+      where.date = {
+        gte: startOfMonth,
+        lte: new Date(endOfMonth.getFullYear(), endOfMonth.getMonth(), endOfMonth.getDate() + 1),
+      };
+
+    //  console.log(where)
+    }
+    return this.transactionsService.findAll(req.user.sub, where);
+  }
+  @Get('/findByAccountId/:id')
+  findByAccountId(@Param('id') id: string) {
+    return this.transactionsService.findAllByAccountId(+id);
   }
 
   @Get(':id')
@@ -23,6 +56,9 @@ export class TransactionsController {
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Update Transaction'})
+  @ApiBody({ type: UpdateTransactionDto})
+  @ApiResponse({ status: 200, type: UpdateTransactionDto })
   update(@Param('id') id: string, @Body() updateTransactionDto: UpdateTransactionDto) {
     return this.transactionsService.update(+id, updateTransactionDto);
   }

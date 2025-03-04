@@ -1,24 +1,27 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { GENDER, ROLE } from '@prisma/client';
+import { createZodDto } from 'nestjs-zod';
 import { GenderEnum, RoleEnum } from 'src/config/contants';
+import { z } from 'zod';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'dynann' })
-  firstName!: string;
+  firstName?: string;
   @ApiProperty({ example: 'ran' })
-  lastName!: string;
+  lastName?: string;
   @ApiProperty({ example: 'fidynann' })
-  username!: string;
+  username?: string;
   @ApiProperty({ example: 'dynann@gmail.com' })
   email: string;
   @ApiProperty({ example: 'hashedpassword' })
   password: string;
   @ApiProperty({ example: '2005-01-01T00:00:00.000Z', type: String })
-  dateOfBirth!: string;
+  dateOfBirth?: string;
   @ApiProperty({
     example:
       'https://external-preview.redd.it/what-is-your-review-about-the-gleam-programming-language-v0-9ZK3KN0GhFM2K1uE0CdhJhqebMdXVfbD_ED-OsliG60.jpg?auto=webp&s=671464f8a6fbd694636808bf83c765a6aaed1529',
   })
-  profileURL!: string;
+  profileURL?: string;
   @ApiProperty({ enum: GenderEnum, example: 'MALE' })
   gender: GenderEnum;
 }
@@ -38,9 +41,6 @@ export class GetUserDto {
 
   @ApiProperty({ example: 'dynann@gmail.com' })
   email: string;
-
-  @ApiProperty({ example: 'mb8r3243ngdu234nt' })
-  password: string;
 
   @ApiProperty({ example: '2005-01-01T00:00:00.000Z' })
   dateOfBirth?: Date;

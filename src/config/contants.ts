@@ -13,10 +13,10 @@ export enum RoleEnum {
   SYSTEM = 'SYSTEM',    
 }
 
-export enum CategoryEnum {
-  EXPENSE = 'expense',
-  INCOME = 'income',
-  TRANSFER = 'transfer',
+export enum TypeEnum {
+  EXPENSE = 'EXPENSE',
+  INCOME = 'INCOME',
+  TRANSFER = 'TRANSFER',
 }
 export const IS_PUBLIC_KEY = 'isPublic';
 
