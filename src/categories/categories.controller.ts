@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, Query } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto, GetCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { Prisma } from '@prisma/client';
-import { ApiProperty, ApiOperation, ApiBody, ApiTags, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import { Prisma, TYPE } from '@prisma/client';
+import { ApiProperty, ApiOperation, ApiBody, ApiTags, ApiBearerAuth, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { number } from 'zod';
 
 @ApiTags('Categories')
 @ApiBearerAuth()
@@ -40,11 +41,20 @@ export class CategoriesController {
   
   @Get('summary')
   @ApiOperation({ summary: 'get all categories from database' })
+  @ApiQuery({ name: 'page', required: false, type: number, example: '1' })
+  @ApiQuery({ name: 'limit', required: false, type: number, example: '10' })
+  @ApiQuery({ name: 'type', required: true, type: String, enum: TYPE })
+  @ApiQuery({ name: 'month', required: false, type: String, example: '2024-02' })
   @ApiResponse({ status: 200, type: [GetCategoryDto]})
-  async summary(@Request() req: any) {
-    return await this.categoriesService.summary(req.user.sub)
+  async summaryIncome(
+    @Request() req: any,
+    @Query('type') type: TYPE,
+    @Query('page') page?: number, 
+    @Query('limit') limit?: number,
+    @Query('month') month?: number) {
+    return await this.categoriesService.summaryIncome(req.user.sub, page, limit, type, month)
   }
-
+  
   @Get(':id')
   @ApiOperation({summary: 'get one categories'})
   @ApiResponse({ status: 200, type: GetCategoryDto })
