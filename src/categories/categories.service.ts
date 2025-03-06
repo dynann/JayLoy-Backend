@@ -62,7 +62,7 @@ export class CategoriesService {
       limit = Math.max(1, Math.min(limit, 100));
       let where: any = {}
       where.date = undefined
-      if(!month){
+      if(month){
         const startOfMonth = new Date(month + '-01T00:00:00.000Z');
         const endOfMonth = new Date(startOfMonth);
         endOfMonth.setMonth(startOfMonth.getMonth() + 1, 0);
@@ -70,6 +70,7 @@ export class CategoriesService {
           gte: startOfMonth,
           lte: new Date(endOfMonth.getFullYear(), endOfMonth.getMonth(), endOfMonth.getDate() + 1),
         };
+        console.log(where.date)
       }
       
       const categoryTotals = await this.prisma.transaction.groupBy({
