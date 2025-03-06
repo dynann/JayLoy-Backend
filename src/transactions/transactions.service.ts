@@ -1,9 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { pid } from 'process';
-import { AccountsService } from 'src/accounts/accounts.service';
 import { GetTransactionDto } from './dto/create-transaction.dto';
+import { UpdateTransactionDto } from './dto/update-transaction.dto';
 @Injectable()
 export class TransactionsService {
   constructor(private prisma: PrismaService){}
@@ -12,11 +11,24 @@ export class TransactionsService {
     const transaction = await this.prisma.transaction.create({data: createTransactionDto});
     return transaction;
   }
-
-  async findAll() {
-    const transaction = await this.prisma.transaction.findMany();
-    return transaction;
+  
+  async findAll(userID: number ,where: any) {
+    // console.log(userID)
+    const account = await this.prisma.account.findFirst({
+      where: {
+        userID: userID
+      }
+    })
+    where.accountID = account.id
+    // console.log("accountID: ", where.id)
+    console.log('query:', where)
+    const transaction = await this.prisma.transaction.findMany({ where });
+    return transaction.map(tx => ({
+      ...tx,
+      amount: tx.amount ? tx.amount.toString() : tx.amount,
+    }));
   }
+
   async findAllByAccountId(id: number) {
     const transaction = await this.prisma.transaction.findMany({
       where: {
@@ -35,20 +47,34 @@ export class TransactionsService {
     return transaction;
   }
 
-  async update(id: number, updateTransactionDto: Prisma.TransactionUpdateInput) {
+  async update(id: number, updateTransactionDto: UpdateTransactionDto) {
     const updateTransaction = await this.prisma.transaction.update({
       where: {id: id},
-      data: updateTransactionDto,
+      data: {
+        amount: updateTransactionDto.amount,
+        type: updateTransactionDto.type,
+        description: updateTransactionDto.description,
+        date: new Date(updateTransactionDto.date),
+        categoryID: updateTransactionDto.categoryID
+      },
     })
-    return updateTransaction;
+    return "Successfully updated";
   }
-
   async remove(id: number) {
     const transaction = await this.prisma.transaction.delete({
       where: {
         id: id,
       }
     })
-    return transaction;
+    return "Successfully deleted";
+  }
+
+  async summarize(userID: number){
+    try {
+      const where: any = {}
+      const transactions = await this.findAll(userID, where)
+    } catch (error) {
+      throw new HttpException(`error occurred: ${error}`, HttpStatus.BAD_REQUEST)
+    }
   }
 }
