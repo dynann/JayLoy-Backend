@@ -44,7 +44,7 @@ export class CategoriesController {
   @ApiQuery({ name: 'page', required: false, type: number, example: '1' })
   @ApiQuery({ name: 'limit', required: false, type: number, example: '10' })
   @ApiQuery({ name: 'type', required: true, type: String, enum: TYPE })
-  @ApiQuery({ name: 'month', required: false, type: String, example: '2024-02' })
+  @ApiQuery({ name: 'month', required: false, type: String, example: '2025-10' })
   @ApiResponse({ status: 200, type: [GetCategoryDto]})
   async summaryIncome(
     @Request() req: any,
