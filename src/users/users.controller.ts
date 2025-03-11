@@ -11,6 +11,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto, GetUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiProperty,
@@ -20,6 +21,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { Public } from 'src/auth/public.decorator';
 @ApiTags('Users')
+@ApiBearerAuth()
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -56,7 +58,6 @@ export class UsersController {
     return this.usersService.findOne(+id);
   }
 
-  @Public()
   @Patch(':id')
   @ApiOperation({ summary: 'update one user' })
   @ApiProperty({ type: UpdateUserDto })

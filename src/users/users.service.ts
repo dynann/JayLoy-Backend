@@ -3,7 +3,6 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt'
 import { AccountsService } from 'src/accounts/accounts.service';
-import { Transaction } from 'src/transactions/entities/transaction.entity';
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService, private accountService: AccountsService) {}
