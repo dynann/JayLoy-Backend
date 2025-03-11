@@ -56,6 +56,7 @@ export class UsersController {
     return this.usersService.findOne(+id);
   }
 
+  @Public()
   @Patch(':id')
   @ApiOperation({ summary: 'update one user' })
   @ApiProperty({ type: UpdateUserDto })
