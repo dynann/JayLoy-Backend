@@ -4,7 +4,7 @@ import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateTransactionDto {
     @ApiProperty({ example: 100 })
-    amount: bigint;
+    amount: number;
     @ApiProperty({ example: 'EXPENSE'})
     type: TypeEnum;
     @ApiProperty({ example: 'I bought cake' })
