@@ -1,21 +1,54 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt'
+import { AccountsService } from 'src/accounts/accounts.service';
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private accountService: AccountsService) {}
   async createOne(createUserDto: Prisma.UserCreateInput) {
     try {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if(!emailRegex.test(createUserDto.email)){
+        throw new BadRequestException('invalid email')
+      }
+      if(createUserDto.password.length < 8 ){
+        throw new BadRequestException('password must be at least 8 characters')
+      }
       const res = await this.prisma.user.findUnique({
         where: {email: createUserDto.email}
       })
+      if (createUserDto.username) {
+        const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+        if (!usernameRegex.test(createUserDto.username)) {
+          throw new HttpException('Username can only contain letters, numbers, underscores, and hyphens', HttpStatus.BAD_REQUEST);
+        }
+      }
       if (res) {
         throw new HttpException('user already exists', HttpStatus.BAD_REQUEST)
       }
-      const hashpassowrd = await bcrypt.hash(createUserDto.password, 10)
-      createUserDto.password = hashpassowrd
+      const hashpassword = await bcrypt.hash(createUserDto.password, 10)
+      createUserDto.password = hashpassword
       const user = await this.prisma.user.create({data: createUserDto})
+      const account = await this.accountService.create(
+        {
+          name: "default-" + user.id,
+          balance: 0,
+          Transactions: {
+            create: [],
+          },
+          user: {
+            connect: {
+              id: user.id,
+            }
+          },
+          currency: {
+            connect: {
+              id: 1,
+            }
+          }
+        }
+      );
       return user
     } catch (error) {
       console.log(error);
@@ -37,6 +70,7 @@ export class UsersService {
         createdAt: true,
         deletedAt: true,
         gender: true,
+        refreshToken: true,
         password: false,
       },});
       return users;
@@ -60,7 +94,9 @@ export class UsersService {
           createdAt: true,
           deletedAt: true,
           gender: true,
+          refreshToken: true,
           password: false,
+
         },
       });
       if(!user){
@@ -74,6 +110,23 @@ export class UsersService {
 
   async update(id: number, updateUserDto: Prisma.UserUpdateInput) {
     try {
+      if(updateUserDto.email){
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if(!emailRegex.test(updateUserDto.email.toString())){
+          throw new BadRequestException('invalid email')
+        }
+      }
+      if(updateUserDto.password){ 
+        if(updateUserDto.password.toString.length < 8 ){
+          throw new BadRequestException('password must be at least 8 characters')
+        }
+      } 
+      if (updateUserDto.username) {
+        const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+        if (!usernameRegex.test(updateUserDto.username.toString())) {
+          throw new HttpException('Username can only contain letters, numbers, underscores, and hyphens', HttpStatus.BAD_REQUEST);
+        }
+      }
       const user = await this.findOne(id);
       if (!user) {
         throw new HttpException('user not found', HttpStatus.NOT_FOUND)
@@ -110,6 +163,14 @@ export class UsersService {
       },
     });
   }
+  
+  async updateRefreshToken(id: number, refreshToken: string){
+    const user = await this.prisma.user.update({
+      where: {id: id},
+      data: {refreshToken: refreshToken}
+    })
+    return "Updated"
+  }
   async validateUser(email: string, password: string) {
     try {
       const user = await this.prisma.user.findUnique({
@@ -131,5 +192,12 @@ export class UsersService {
         HttpStatus.BAD_REQUEST,
       );
     }
+  }
+
+  async removeRefreshToken(userID: number){
+    const user = await this.prisma.user.update({
+      where: {id: userID},
+      data: {refreshToken: null}
+    })
   }
 }

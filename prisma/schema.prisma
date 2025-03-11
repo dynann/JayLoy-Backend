@@ -43,10 +43,11 @@ model User {
   password String @db.VarChar(255)
   dateOfBirth DateTime?
   profileURL String? @db.VarChar(255)
-  gender GENDER @default(UNSPECIFY) 
+  gender GENDER? @default(UNSPECIFY) 
   createdAt DateTime @default(now())
   deletedAt DateTime?
   role ROLE @default(USER)
+  refreshToken String? @db.VarChar(255)
   Categories Category[]
   Budgets Budget[]
   Accounts Account[]
@@ -80,13 +81,14 @@ model Currency {
 
 model Transaction {
   id Int @id @default(autoincrement())
-  amount Int
+  amount BigInt
   type TYPE
   description String @db.VarChar(255)
-  category Category? @relation(fields: [categoryID], references: [id])
-  categoryID Int?
-  account Account? @relation(fields: [accountID], references: [id])
-  accountID Int?
+  date DateTime @db.Date @default(now()) 
+  category Category @relation(fields: [categoryID], references: [id])
+  categoryID Int
+  account Account @relation(fields: [accountID], references: [id])
+  accountID Int
 }
 
 model Category {
@@ -94,6 +96,6 @@ model Category {
   name String 
   type TYPE
   user User? @relation(fields: [userID], references: [id])
-  userID Int
+  userID Int?
   Transactions Transaction[]
 }

@@ -11,6 +11,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto, GetUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiProperty,
@@ -18,12 +19,14 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
-
+import { Public } from 'src/auth/public.decorator';
 @ApiTags('Users')
+@ApiBearerAuth()
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-
+  
+  @Public()
   @Post()
   @ApiProperty({ title: 'create one user', type: CreateUserDto })
   @ApiOperation({ summary: 'create one user' })
@@ -32,6 +35,7 @@ export class UsersController {
     return this.usersService.createOne(createUserDto);
   }
 
+  @Public()
   @Get()
   @ApiOperation({ summary: 'get all users' })
   @ApiResponse({

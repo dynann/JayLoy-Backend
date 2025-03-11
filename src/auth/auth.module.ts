@@ -12,7 +12,7 @@ import { jwtConstant } from 'src/config/contants';
     JwtModule.register({
       global: true,
       secret: jwtConstant.secret,
-      signOptions: { expiresIn: '15m'},
+      signOptions: { expiresIn: '3d'},
     })
   ],
 })
