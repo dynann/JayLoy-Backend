@@ -18,8 +18,8 @@ export class TransactionsController {
   }
 
   @Get()
-  @ApiQuery({ name: 'date', required: false, type: String, example: '2024-02-26' })
-  @ApiQuery({ name: 'month', required: false, type: String, example: '2024-02' })
+  @ApiQuery({ name: 'date', required: false, type: String, example: '2025-02-26' })
+  @ApiQuery({ name: 'month', required: false, type: String, example: '2025-10' })
   @ApiResponse({ status: 200, description: 'Successful response' })
   findAll(@Request() req, @Query('date') date?: string, @Query('month') month?: string, ) {
     let where: any = {}

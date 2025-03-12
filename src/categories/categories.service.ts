@@ -62,7 +62,7 @@ export class CategoriesService {
       limit = Math.max(1, Math.min(limit, 100));
       let where: any = {}
       where.date = undefined
-      if(!month){
+      if(month){
         const startOfMonth = new Date(month + '-01T00:00:00.000Z');
         const endOfMonth = new Date(startOfMonth);
         endOfMonth.setMonth(startOfMonth.getMonth() + 1, 0);
@@ -70,8 +70,9 @@ export class CategoriesService {
           gte: startOfMonth,
           lte: new Date(endOfMonth.getFullYear(), endOfMonth.getMonth(), endOfMonth.getDate() + 1),
         };
+        // console.log(where.date)
       }
-      
+      console.log(type);
       const categoryTotals = await this.prisma.transaction.groupBy({
         by: ['categoryID'],
         where: {
@@ -83,13 +84,14 @@ export class CategoriesService {
         },
         _sum: { amount: true },
       });
-      console.log('transaction: ', categoryTotals)
+      // console.log('transaction: ', categoryTotals)
       const categories = await this.prisma.category.findMany({
         where: { 
           id: { in: categoryTotals.map(ct => ct.categoryID) },
           ...(type && { type })
         }
       });
+      
       const combined = categoryTotals.map(ct => {
         const category = categories.find(c => c.id === ct.categoryID);
         return {

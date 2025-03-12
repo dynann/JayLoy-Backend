@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { GetAccountDto, UpdateBalanceZod } from './dto/create-account.dto';
 import { TransactionsService } from 'src/transactions/transactions.service';
 import { CreateTransactionDto } from 'src/transactions/dto/create-transaction.dto';
+import { bigint } from 'zod';
 
 @Injectable()
 export class AccountsService {
@@ -23,8 +24,9 @@ export class AccountsService {
   async insertTransaction(id: number, createTransactionDto: CreateTransactionDto){
     try {
       const accountId = (await this.findByUserId(id)).id;
+      const amount = BigInt(createTransactionDto.amount * 100)
       const transaction = await this.transactionService.create({
-      amount: createTransactionDto.amount,
+      amount: amount,
       type: createTransactionDto.type,
       description: createTransactionDto.description,
       date: new Date(createTransactionDto.date),
@@ -40,7 +42,7 @@ export class AccountsService {
       }
     }
     )
-    const updateAccountBalance = await this.updateBalance(accountId, transaction.amount);
+    const updateAccountBalance = await this.updateBalance(accountId, amount, transaction.type);
     return "Succesfully Created";
     }
     catch (err){
@@ -96,7 +98,7 @@ export class AccountsService {
     }
   }
 
-  async updateBalance(id: number, amount: bigint){
+  async updateBalance(id: number, amount: bigint, type: string){
     try { 
        return await this.prisma.$transaction(async (prisma) => {
        const record = await prisma.account.findUnique({
@@ -108,10 +110,18 @@ export class AccountsService {
        if(!record){
         throw new HttpException('no account was found', HttpStatus.NOT_FOUND)
        }
-       return await prisma.account.update({
-        where: { id: id },
-        data: { balance: record.balance + amount }
-       })
+       if (type === "EXPENSE"){
+          return await prisma.account.update({
+          where: { id: id },
+          data: { balance: record.balance - amount }
+         })
+       } 
+       else {
+        return await prisma.account.update({
+          where: { id: id },
+          data: { balance: record.balance + amount }
+         })
+       }
       })
     } catch (error) {
       throw new HttpException(`Error occurred: ${error}`, HttpStatus.NOT_FOUND)
