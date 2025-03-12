@@ -15,5 +15,6 @@ import { jwtConstant } from 'src/config/contants';
       signOptions: { expiresIn: '3d'},
     })
   ],
+  exports: [AuthService]
 })
 export class AuthModule {}

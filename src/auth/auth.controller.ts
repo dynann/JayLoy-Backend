@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Request, UseGuards, Patch, Req } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Request, UseGuards, Patch, Req, BadRequestException } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOAuth2, ApiOperation, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/type.dto';
 import { AuthService } from './auth.service';
@@ -85,19 +85,20 @@ export class AuthController {
   @Public()
   @Get('/google')
   @UseGuards(GoogleAuthGuard)
-  googleAuth() {
-    console.log('google is triggered');
-  }
+  googleAuth() {}
 
   @Public()
   @Get('/google/redirect')
   @UseGuards(GoogleAuthGuard)
   googleAuthRedirect(@Req() req) {
-    console.log('google is triggered');
-    return {
-      message: 'user from google',
-      user: req.user,
-    };
+    try {
+      return {
+        user: req.user,
+      };
+    } catch (error) {
+      throw new BadRequestException(error)
+    }
+
   }
 
   
