@@ -151,7 +151,22 @@ export class AccountsService {
         const month = transaction.date.getMonth()
         monthlyExpense[month] += Number(transaction.amount)
       })
-      return monthlyExpense
+      const expense = [
+        {'jan': monthlyExpense[0]},
+        {'feb': monthlyExpense[1]},
+        {'mar': monthlyExpense[2]},
+        {'apr': monthlyExpense[3]},
+        {'may': monthlyExpense[4]},
+        {'jun': monthlyExpense[5]},
+        {'jul': monthlyExpense[6]},
+        {'aug': monthlyExpense[7]},
+        {'sep': monthlyExpense[8]},
+        {'oct': monthlyExpense[9]},
+        {'nov': monthlyExpense[10]},
+        {'dec': monthlyExpense[11]},
+
+      ]
+      return expense
     } catch (error) {
       throw new BadRequestException(`error ${error}`)
     }
