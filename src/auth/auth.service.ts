@@ -66,4 +66,24 @@ export class AuthService {
     const user = await this.userService.removeRefreshToken(userID);
     return "Logged Out";
   }
+  
+  async validateGoogleUser(profile: any) {
+    // Use the direct email property from the modified user object
+    let user = await this.userService.findByEmail(profile.email);
+  
+    if (!user) {
+      user = await this.userService.createOne({
+        email: profile.email,
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        profileURL: profile.picture,
+        password: null,
+      });
+    }
+  
+    const payload = { sub: user.id, email: user.email };
+    const tokens = await this.generateTokens(payload);
+    return { user, tokens };
+  }
+
 }

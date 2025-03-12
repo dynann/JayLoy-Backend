@@ -1,5 +1,5 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Request, UseGuards, Patch } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Request, UseGuards, Patch, Req, BadRequestException } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiOAuth2, ApiOperation, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/type.dto';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
@@ -9,6 +9,7 @@ import { Roles } from './roles.decorator';
 import { UsersService } from 'src/users/users.service';
 import { GetUserDto } from 'src/users/dto/create-user.dto';
 import { Public } from './public.decorator';
+import { GoogleAuthGuard } from './google.guard';
 @ApiTags('Auth')
 @ApiBearerAuth()
 @Controller('auth')
@@ -79,6 +80,25 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async testAdmin() {
     return 'Allow Access!';
+  }
+
+  @Public()
+  @Get('/google')
+  @UseGuards(GoogleAuthGuard)
+  googleAuth() {}
+
+  @Public()
+  @Get('/google/redirect')
+  @UseGuards(GoogleAuthGuard)
+  googleAuthRedirect(@Req() req) {
+    try {
+      return {
+        user: req.user,
+      };
+    } catch (error) {
+      throw new BadRequestException(error)
+    }
+
   }
 
   
