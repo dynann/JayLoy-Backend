@@ -1,10 +1,11 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { GetAccountDto, UpdateBalanceZod } from './dto/create-account.dto';
 import { TransactionsService } from 'src/transactions/transactions.service';
 import { CreateTransactionDto } from 'src/transactions/dto/create-transaction.dto';
 import { bigint } from 'zod';
+import { error } from 'console';
 
 @Injectable()
 export class AccountsService {
@@ -125,6 +126,34 @@ export class AccountsService {
       })
     } catch (error) {
       throw new HttpException(`Error occurred: ${error}`, HttpStatus.NOT_FOUND)
+    }
+  }
+  
+  async totalExpenseEachMonth(userID: number, year: number){
+    try {
+      const account = (await this.findByUserId(userID)).id
+      const transactions = await this.prisma.transaction.findMany({
+        where: {
+          type: 'EXPENSE',
+          date: {
+            gte: new Date(`${year}-01-01`),
+            lt: new Date(`${year + 1}-01-01`)
+          },
+          accountID: account,
+        },
+        select: {
+          amount: true,
+          date: true,
+        }
+      })
+      const monthlyExpense = new Array(12).fill(0)
+      transactions.forEach((transaction) => {
+        const month = transaction.date.getMonth()
+        monthlyExpense[month] += Number(transaction.amount)
+      })
+      return monthlyExpense
+    } catch (error) {
+      throw new BadRequestException(`error ${error}`)
     }
   }
 }
