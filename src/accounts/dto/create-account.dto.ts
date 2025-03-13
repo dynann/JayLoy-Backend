@@ -34,3 +34,16 @@ const updateBalanceZod = z.object({
 
 export class UpdateBalanceZod extends createZodDto(updateBalanceZod) {}
 
+export class getBalanceDTO {
+    @ApiProperty({example: 200})
+    amount: number
+}
+
+export class getYearlyReportDTO {
+    @ApiProperty({example: 500})
+    total_income: number
+    @ApiProperty({example: 300})
+    total_expense: number
+    @ApiProperty({example: 200})
+    total_remaining: number
+}
