@@ -171,4 +171,44 @@ export class AccountsService {
       throw new BadRequestException(`error ${error}`)
     }
   }
+
+  async getAccountBalance(userID: number){
+    const account = await this.findByUserId(userID);
+    return {"amount": Number(account.balance)};
+  }
+
+  async getYearlyReport(userID: number, year: number){
+    const account = (await this.findByUserId(userID)).id;
+    const totalIncome = await this.prisma.transaction.aggregate({
+      _sum: {amount: true},
+      where: {
+        type: "INCOME",
+        date: {
+          gte: new Date(`${year}-01-01`),
+          lt: new Date(`${year + 1}-01-01`)
+        },
+        accountID: account,
+        
+      }
+    });
+    const totalExpense = await this.prisma.transaction.aggregate({
+      _sum: {amount: true},
+      where: {
+        type: "EXPENSE",
+        date: {
+          gte: new Date(`${year}-01-01`),
+          lt: new Date(`${year + 1}-01-01`)
+        },
+        accountID: account,
+      }
+    })
+    const totalRemaining = totalIncome._sum.amount - totalExpense._sum.amount;
+    const report = {
+      "total_income": Number(totalIncome._sum.amount),
+      "total_expense": Number(totalExpense._sum.amount),
+      "total_remaining": Number(totalRemaining)
+    }
+    return report;
+  }
+
 }

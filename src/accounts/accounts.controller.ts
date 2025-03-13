@@ -1,18 +1,34 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Request, Query } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
-import { CreateAccountDto, GetAccountDto } from './dto/create-account.dto';
+import { CreateAccountDto, GetAccountDto, getBalanceDTO, getYearlyReportDTO } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiProperty, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Prisma } from '@prisma/client';
 import { CreateTransactionDto, GetTransactionDto } from 'src/transactions/dto/create-transaction.dto';
 import { number } from 'zod';
+import { query } from 'express';
 
 @ApiTags('Accounts')
 @ApiBearerAuth()
 @Controller('accounts')
 export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
+
+  @Get('/balance')
+  @ApiOperation({ summary: 'get balance'})
+  @ApiResponse({ status: 200, type: getBalanceDTO})
+  async getBalanceAPI(@Request() req){
+    return await this.accountsService.getAccountBalance(req.user.sub);
+  }
+
+  @Get('/yearlyreport')
+  @ApiOperation({ summary: 'get yearly report'})
+  @ApiQuery({ name: 'year', required: true, type: String, example: '2025' })
+  @ApiResponse({ status: 200, type: getYearlyReportDTO})
+  async getYearlyReport(@Request() req, @Query('year') year: string){
+    return await this.accountsService.getYearlyReport(req.user.sub, +year);
+  }
 
   @Post()
   @ApiOperation({ summary: 'create one account'})
@@ -71,5 +87,6 @@ export class AccountsController {
   async remove(@Param('id') id: string) {
     return await this.accountsService.remove(+id);
   }
+  
 
 }
