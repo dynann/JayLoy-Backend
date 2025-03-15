@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { GetTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { bigint } from 'zod';
 @Injectable()
 export class TransactionsService {
   constructor(private prisma: PrismaService){}
@@ -48,6 +49,42 @@ export class TransactionsService {
   }
 
   async update(id: number, updateTransactionDto: UpdateTransactionDto) {
+    const transaction = await this.prisma.transaction.findUnique({where: {id: id}});
+    await this.prisma.$transaction(async (tx) => {
+      if (transaction.type === "EXPENSE"){
+        await this.prisma.account.update({
+          where: {id: transaction.accountID},
+          data: {
+            balance: {increment: transaction.amount} 
+          }
+        })
+      }
+      else{
+        await this.prisma.account.update({
+          where: {id: transaction.accountID},
+          data: {
+            balance: {decrement: transaction.amount}
+          }
+        })
+      }
+      if (updateTransactionDto.type === "EXPENSE"){
+        await this.prisma.account.update({
+          where: {id: transaction.accountID},
+          data: {
+            balance: {decrement: BigInt(updateTransactionDto.amount)} 
+          }
+        })
+      }
+      else {
+        await this.prisma.account.update({
+          where: {id: transaction.accountID},
+          data: {
+            balance: {increment: BigInt(updateTransactionDto.amount)} 
+          }
+        })
+      }
+    }  
+    )
     const updateTransaction = await this.prisma.transaction.update({
       where: {id: id},
       data: {
@@ -58,10 +95,33 @@ export class TransactionsService {
         categoryID: updateTransactionDto.categoryID
       },
     })
+
     return "Successfully updated";
   }
+
   async remove(id: number) {
-    const transaction = await this.prisma.transaction.delete({
+    const transaction = await this.prisma.transaction.findUnique({where: {id: id}});
+    const account = await this.prisma.account.findUnique({where: {id: transaction.accountID}});
+    await this.prisma.$transaction(async (tx) => {
+      if (transaction.type === "EXPENSE"){
+        await this.prisma.account.update({
+          where: {id: transaction.accountID},
+          data: {
+            balance: {increment: transaction.amount} 
+          }
+        })
+      }
+      else{
+        await this.prisma.account.update({
+          where: {id: transaction.accountID},
+          data: {
+            balance: {decrement: transaction.amount}
+          }
+        })
+      }
+    })
+
+    await this.prisma.transaction.delete({
       where: {
         id: id,
       }
