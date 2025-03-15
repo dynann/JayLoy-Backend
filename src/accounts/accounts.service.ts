@@ -114,13 +114,13 @@ export class AccountsService {
        if (type === "EXPENSE"){
           return await prisma.account.update({
           where: { id: id },
-          data: { balance: record.balance - amount }
+          data: { balance: {decrement: amount} }
          })
        } 
        else {
         return await prisma.account.update({
           where: { id: id },
-          data: { balance: record.balance + amount }
+          data: { balance: {increment: amount}}
          })
        }
       })
@@ -202,7 +202,7 @@ export class AccountsService {
         accountID: account,
       }
     })
-    const totalRemaining = totalIncome._sum.amount - totalExpense._sum.amount;
+    const totalRemaining = Number(totalIncome._sum.amount) - Number(totalExpense._sum.amount);
     const report = {
       "total_income": Number(totalIncome._sum.amount),
       "total_expense": Number(totalExpense._sum.amount),
