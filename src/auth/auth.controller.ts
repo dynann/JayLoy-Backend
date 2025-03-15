@@ -83,24 +83,9 @@ export class AuthController {
   }
 
   @Public()
-  @Get('/google')
-  @UseGuards(GoogleAuthGuard)
-  googleAuth() {}
-
-  @Public()
-  @Get('/google/redirect')
-  @UseGuards(GoogleAuthGuard)
-  googleAuthRedirect(@Req() req) {
-    try {
-      return {
-        user: req.user,
-      };
-    } catch (error) {
-      throw new BadRequestException(error)
-    }
-
+  @Post('/google')
+  async googleAuthRedirect(@Req() req) {
+    console.log(req.body)
+    return this.authService.validateGoogleToken(req.body.idToken)
   }
-
-  
-
 }
