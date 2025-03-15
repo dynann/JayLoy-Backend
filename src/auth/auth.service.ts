@@ -7,10 +7,15 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { LoginDto, PayloadDto } from './dto/type.dto';
+import { OAuth2Client } from 'google-auth-library';
 import * as dotenv from 'dotenv';
 dotenv.config();
 @Injectable()
 export class AuthService {
+  private readonly googleClient = new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET
+  );
   constructor(
     private userService: UsersService,
     private jwtService: JwtService,
@@ -86,4 +91,28 @@ export class AuthService {
     return { user, tokens };
   }
 
+  async validateGoogleToken(idToken: string) {
+    const ticket = await this.googleClient.verifyIdToken({
+      idToken: idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload) throw new Error('Invalid Google token');
+
+    let user = await this.userService.findByEmail(payload.email);
+
+    if (!user) {
+      user = await this.userService.createOne({
+        email: payload.email,
+        firstName: payload.given_name,
+        lastName: payload.family_name,
+        profileURL: payload.picture,
+      });
+    }
+
+    // Generate your own JWT
+    const jwtPayload = { sub: user.id, email: user.email };
+    return await this.generateTokens(jwtPayload)
+  }
 }
