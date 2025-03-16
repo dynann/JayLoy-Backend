@@ -22,7 +22,7 @@ export class TransactionsService {
     })
     where.accountID = account.id
     // console.log("accountID: ", where.id)
-    console.log('query:', where)
+    // console.log('query:', where)
     const transaction = await this.prisma.transaction.findMany({ where });
     return transaction.map(tx => ({
       ...tx,
