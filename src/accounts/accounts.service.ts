@@ -152,18 +152,18 @@ export class AccountsService {
         monthlyExpense[month] += Number(transaction.amount)
       })
       const expense = [
-        {'jan': monthlyExpense[0]},
-        {'feb': monthlyExpense[1]},
-        {'mar': monthlyExpense[2]},
-        {'apr': monthlyExpense[3]},
-        {'may': monthlyExpense[4]},
-        {'jun': monthlyExpense[5]},
-        {'jul': monthlyExpense[6]},
-        {'aug': monthlyExpense[7]},
-        {'sep': monthlyExpense[8]},
-        {'oct': monthlyExpense[9]},
-        {'nov': monthlyExpense[10]},
-        {'dec': monthlyExpense[11]},
+        { month: "January", Expense: monthlyExpense[0] },
+        { month: "February", Expense: monthlyExpense[1] },
+        { month: "March", Expense: monthlyExpense[2] },
+        { month: "April", Expense: monthlyExpense[3] },
+        { month: "May", Expense: monthlyExpense[4] },
+        { month: "June", Expense: monthlyExpense[5] },
+        { month: "July", Expense: monthlyExpense[6] },
+        { month: "August", Expense: monthlyExpense[7] },
+        { month: "September", Expense: monthlyExpense[8] },
+        { month: "October", Expense: monthlyExpense[9] },
+        { month: "November", Expense: monthlyExpense[10] },
+        { month: "December", Expense: monthlyExpense[11] },
 
       ]
       return expense
