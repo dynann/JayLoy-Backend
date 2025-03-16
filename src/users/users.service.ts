@@ -8,17 +8,37 @@ export class UsersService {
   constructor(private prisma: PrismaService, private accountService: AccountsService) {}
   async createOne(createUserDto: Prisma.UserCreateInput) {
     try {
+      if(this.prisma.user.findUnique({
+        where: {
+          email: createUserDto.email,
+        },
+        select: {
+          id: true,
+          email: true,
+          role: true,
+        }
+      })) {
+        
+      }
+
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if(!emailRegex.test(createUserDto.email)){
         throw new BadRequestException('invalid email')
       }
-      if(createUserDto.password.length < 8 ){
-        throw new BadRequestException('password must be at least 8 characters')
+      if(createUserDto.password){
+        if(createUserDto.password.length < 8 ){
+          throw new BadRequestException('password must be at least 8 characters')
+        }
+        const hashpassword = await bcrypt.hash(createUserDto.password, 10)
+        createUserDto.password = hashpassword
       }
+
       const res = await this.prisma.user.findUnique({
         where: {email: createUserDto.email}
       })
       if (createUserDto.username) {
+        createUserDto.username = createUserDto.username.replace(/\s/g, "")
+        // console.log(createUserDto.username)
         const usernameRegex = /^[a-zA-Z0-9_-]+$/;
         if (!usernameRegex.test(createUserDto.username)) {
           throw new HttpException('Username can only contain letters, numbers, underscores, and hyphens', HttpStatus.BAD_REQUEST);
@@ -27,8 +47,7 @@ export class UsersService {
       if (res) {
         throw new HttpException('user already exists', HttpStatus.BAD_REQUEST)
       }
-      const hashpassword = await bcrypt.hash(createUserDto.password, 10)
-      createUserDto.password = hashpassword
+     
       const user = await this.prisma.user.create({data: createUserDto})
       const account = await this.accountService.create(
         {

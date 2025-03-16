@@ -1,5 +1,5 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Request, UseGuards, Patch } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Request, UseGuards, Patch, Req, BadRequestException } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiOAuth2, ApiOperation, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/type.dto';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
@@ -9,6 +9,7 @@ import { Roles } from './roles.decorator';
 import { UsersService } from 'src/users/users.service';
 import { GetUserDto } from 'src/users/dto/create-user.dto';
 import { Public } from './public.decorator';
+import { GoogleAuthGuard } from './google.guard';
 @ApiTags('Auth')
 @ApiBearerAuth()
 @Controller('auth')
@@ -81,6 +82,10 @@ export class AuthController {
     return 'Allow Access!';
   }
 
-  
-
+  @Public()
+  @Post('/google')
+  async googleAuthRedirect(@Req() req) {
+    console.log(req.body)
+    return this.authService.validateGoogleToken(req.body.idToken)
+  }
 }

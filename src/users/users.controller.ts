@@ -32,6 +32,7 @@ export class UsersController {
   @ApiOperation({ summary: 'create one user' })
   @ApiBody({ type: CreateUserDto })
   async create(@Body() createUserDto: Prisma.UserCreateInput) {
+    console.log(createUserDto)
     return this.usersService.createOne(createUserDto);
   }
 

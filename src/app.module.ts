@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { ConfigurableModuleBuilder, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -11,6 +11,9 @@ import { CategoriesModule } from './categories/categories.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
+import { PassportModule } from '@nestjs/passport';
+import { ConfigModule } from '@nestjs/config';
+import { GoogleStrategy } from './auth/strategy/google.strategy';
 
 @Module({
   imports: [
@@ -23,13 +26,18 @@ import { AuthGuard } from './auth/auth.guard';
     CategoriesModule,
     AuthModule,
     PrismaModule,
+    PassportModule.register({ defaultStrategy: 'google'}),
+    ConfigModule.forRoot({
+      isGlobal: true
+    }),
   ],
   controllers: [AppController],
   providers: [AppService, 
     {
       provide: APP_GUARD,
       useClass: AuthGuard
-    }
+    },
+    GoogleStrategy,
   ],
 })
 export class AppModule {}
