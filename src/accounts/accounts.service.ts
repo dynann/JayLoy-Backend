@@ -24,26 +24,33 @@ export class AccountsService {
 
   async insertTransaction(id: number, createTransactionDto: CreateTransactionDto){
     try {
+      if (createTransactionDto.amount == 0){
+        return "Invalid amount!"
+      }
       const accountId = (await this.findByUserId(id)).id;
       const amount = BigInt(createTransactionDto.amount * 100)
-      const transaction = await this.transactionService.create({
-      amount: amount,
-      type: createTransactionDto.type,
-      description: createTransactionDto.description,
-      date: new Date(createTransactionDto.date),
-      category: {
-        connect: {
-          id: createTransactionDto.categoryID
+      await this.prisma.$transaction(async (tx) => {
+          await this.transactionService.create({
+          amount: amount,
+          type: createTransactionDto.type,
+          description: createTransactionDto.description,
+          date: new Date(createTransactionDto.date),
+          category: {
+            connect: {
+              id: createTransactionDto.categoryID
+            }
+          },
+          account: {
+            connect: {
+              id: accountId,
+            }
+          }
         }
-      },
-      account: {
-        connect: {
-          id: accountId,
-        }
-      }
-    }
-    )
-    const updateAccountBalance = await this.updateBalance(accountId, amount, transaction.type);
+        )
+        
+      })
+      
+    const updateAccountBalance = await this.updateBalance(accountId, amount, createTransactionDto.type);
     return "Succesfully Created";
     }
     catch (err){

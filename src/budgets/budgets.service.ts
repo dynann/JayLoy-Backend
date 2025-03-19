@@ -1,6 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateBudgetDto, GetBudgetDto } from './dto/create-budget.dto';
-import { UpdateBudgetDto } from './dto/update-budget.dto';
+import { CreateBudgetDto, GetBudgetDto, UpdateBudgetDto } from './dto/create-budget.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -13,8 +12,6 @@ export class BudgetsService {
       const createBudget = await this.prisma.budget.create({
         data: {
           amount: createBudgetDto.amount,
-          startDate: createBudgetDto.startDate,
-          endDate: createBudgetDto.endDate,
           userID: userID,
         }
       })
@@ -35,11 +32,10 @@ export class BudgetsService {
     }
   }
 
-  async findOneBudget(userID: number , id: number) {
+  async findOneBudget(userID: number ) {
     try {
       const getBudget = await this.prisma.budget.findFirst({ 
         where: {
-          id: id,
           userID: userID,
         }
       })
@@ -66,18 +62,28 @@ export class BudgetsService {
     }
   }
 
-  async updateOneBudget(userID: number, id: number, updateBudgetDto: UpdateBudgetDto) {
+  async updateOneBudget(userID: number, updateBudgetDto: UpdateBudgetDto) {
     try {
-      if(!this.findOneBudget(userID, id)){
-        return null;
-      }
-      const update = await this.prisma.budget.update({
-        where: {
-          id: id
-        },
-        data: updateBudgetDto
+      await this.prisma.$transaction(async (tx) => {
+        if(!this.findOneBudget(userID)){
+          return null;
+        }
+        const updateData: any = {...updateBudgetDto};
+        if (updateBudgetDto.startDate){
+          updateData.startDate = new Date(updateBudgetDto.startDate);
+        }
+  
+        if (updateBudgetDto.endDate){
+          updateData.endDate = new Date(updateBudgetDto.endDate);
+        }
+        const update = await this.prisma.budget.update({
+          where: {
+            userID: userID,
+          },
+          data: updateData
+        })
+        return new GetBudgetDto(update)
       })
-      return new GetBudgetDto(update)
     } catch (error) {
       throw new HttpException(`error occurred: ${error}`, HttpStatus.BAD_REQUEST)
     }
@@ -85,7 +91,7 @@ export class BudgetsService {
 
   async removeOneBudget(userID: number, id: number) {
     try {
-      if(!this.findOneBudget(userID, id)) {
+      if(!this.findOneBudget(userID)) {
         return null
       }
       const deleteBudget = await this.prisma.budget.delete({
