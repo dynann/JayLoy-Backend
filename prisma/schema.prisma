@@ -56,10 +56,10 @@ model User {
 model Budget {
   id Int @id @default(autoincrement())
   amount BigInt
-  startDate DateTime
-  endDate DateTime
+  startDate DateTime? @db.Date
+  endDate DateTime? @db.Date
   user User @relation(fields: [userID], references: [id], onDelete: Cascade)
-  userID Int
+  userID Int @unique
 }
 
 model Account {
@@ -67,9 +67,9 @@ model Account {
   name String @db.VarChar(255)
   balance BigInt
   Transactions Transaction[]
-  user User @relation(fields: [userID], references: [id])
+  user User @relation(fields: [userID], references: [id], onDelete: Cascade)
   userID Int
-  currency Currency @relation(fields: [currencyID], references: [id], onDelete: Cascade)
+  currency Currency @relation(fields: [currencyID], references: [id])
   currencyID Int
 }
 
@@ -84,7 +84,7 @@ model Transaction {
   amount BigInt
   type TYPE
   description String @db.VarChar(255)
-  date DateTime @db.Date @default(now()) 
+  date DateTime @default(now()) 
   category Category @relation(fields: [categoryID], references: [id])
   categoryID Int
   account Account @relation(fields: [accountID], references: [id], onDelete: Cascade)
@@ -95,7 +95,7 @@ model Category {
   id Int @id @default(autoincrement())
   name String 
   type TYPE
-  user User? @relation(fields: [userID], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userID], references: [id])
   userID Int?
   Transactions Transaction[]
 }

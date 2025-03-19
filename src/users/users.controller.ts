@@ -6,6 +6,9 @@ import {
   Patch,
   Param,
   Delete,
+  Request,
+  HttpCode,
+  HttpStatus
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, GetUserDto } from './dto/create-user.dto';
@@ -59,23 +62,23 @@ export class UsersController {
     return this.usersService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Patch()
   @ApiOperation({ summary: 'update one user' })
   @ApiProperty({ type: UpdateUserDto })
   @ApiBody({ type: UpdateUserDto })
   @ApiResponse({ status: 200, type: UpdateUserDto })
   async update(
-    @Param('id') id: string,
+    @Request() req,
     @Body() updateUserDto: Prisma.UserUpdateInput,
   ) {
-    return this.usersService.update(+id, updateUserDto);
+    return this.usersService.update(req.user.sub, updateUserDto);
   }
 
-  @Delete(':id')
+  @Delete()
   @ApiOperation({ summary: 'delete one user' })
   @ApiResponse({ status: 200, type: GetUserDto })
-  async remove(@Param('id') id: string) {
-    console.log('hello', id)
-    return this.usersService.remove(+id);
+  @HttpCode(HttpStatus.OK) 
+  async remove(@Request() req) {
+    return this.usersService.remove(req.user.sub);
   }
 }

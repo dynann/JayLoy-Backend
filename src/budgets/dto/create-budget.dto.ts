@@ -4,12 +4,6 @@ import * as dayjs from "dayjs"
 export class CreateBudgetDto {
     @ApiProperty({ example: 1000 })
     amount: number;
-
-    @ApiProperty({ example: dayjs() })
-    startDate: string;
-
-    @ApiProperty({ example: dayjs() })
-    endDate: string;
 }
 
 export class GetBudgetDto {
@@ -41,10 +35,9 @@ export class UpdateBudgetDto {
     @ApiProperty({ example: 1000 })
     amount?: number;
 
-    @ApiProperty({ example: dayjs() })
+    @ApiProperty({ example: "2022-05-03" })
     startDate?: string;
 
-    @ApiProperty({ example: dayjs() })
+    @ApiProperty({ example: "2023-05-03" })
     endDate?: string;
 }
-

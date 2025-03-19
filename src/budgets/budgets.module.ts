@@ -9,5 +9,6 @@ import { RolesGuard } from 'src/auth/roles.guard';
   controllers: [BudgetsController],
   providers: [BudgetsService, { provide: APP_GUARD, useClass: AuthGuard },
       { provide: APP_GUARD, useClass: RolesGuard },],
+      exports: [BudgetsService],
 })
 export class BudgetsModule {}

@@ -3,9 +3,11 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt'
 import { AccountsService } from 'src/accounts/accounts.service';
+import { BudgetsService } from 'src/budgets/budgets.service';
+import { connect } from 'http2';
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService, private accountService: AccountsService) {}
+  constructor(private prisma: PrismaService, private accountService: AccountsService, private budgetService: BudgetsService) {}
   async createOne(createUserDto: Prisma.UserCreateInput) {
     try {
       if(this.prisma.user.findUnique({
@@ -68,6 +70,9 @@ export class UsersService {
           }
         }
       );
+      const budget = await this.budgetService.createBudget(user.id, {
+        amount: 0,
+      })
       return user
     } catch (error) {
       console.log(error);
@@ -163,37 +168,13 @@ export class UsersService {
   async remove(id: number) {
     try {
       const user = await this.findOne(id);
-      console.log(user)
       if (!user) {
         return null;
       }
-      const deleteAccount = await this.prisma.account.deleteMany(
-        {
-          where: {
-            userID: id
-          }
-        }
-      )
-      const deleteCategory = await this.prisma.category.deleteMany(
-        {
-          where: {
-            userID: id
-          }
-        }
-      )
-      const deleteBudget = await this.prisma.budget.deleteMany(
-        {
-          where: {
-            userID: id
-          }
-        }
-      )
       const deleteUser = await this.prisma.user.delete({
-        where: {
-          id
-        }
-      })
-      return deleteUser;
+        where: { id: id },
+      });
+      return "Successfully Deleted!";
     } catch (error) {
       throw new HttpException(`Error ${error}`, HttpStatus.BAD_REQUEST);
     }
