@@ -1,7 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { Public } from './auth/public.decorator';
+import * as dotenv from 'dotenv'
+dotenv.config()
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
@@ -46,7 +47,7 @@ async function bootstrap() {
     },
   });
 
-  await app.listen(process.env.PORT ?? 4001);
-  console.log(`app run on http://localhost:4001`);
+  await app.listen(process.env.PORT, '0.0.0.0');
+  console.log(`app run on http://localhost:${process.env.PORT}`);
 }
 bootstrap();
