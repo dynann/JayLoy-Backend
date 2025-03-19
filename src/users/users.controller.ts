@@ -75,6 +75,7 @@ export class UsersController {
   @ApiOperation({ summary: 'delete one user' })
   @ApiResponse({ status: 200, type: GetUserDto })
   async remove(@Param('id') id: string) {
+    console.log('hello', id)
     return this.usersService.remove(+id);
   }
 }

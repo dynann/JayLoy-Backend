@@ -163,12 +163,36 @@ export class UsersService {
   async remove(id: number) {
     try {
       const user = await this.findOne(id);
+      console.log(user)
       if (!user) {
         return null;
       }
+      const deleteAccount = await this.prisma.account.deleteMany(
+        {
+          where: {
+            userID: id
+          }
+        }
+      )
+      const deleteCategory = await this.prisma.category.deleteMany(
+        {
+          where: {
+            userID: id
+          }
+        }
+      )
+      const deleteBudget = await this.prisma.budget.deleteMany(
+        {
+          where: {
+            userID: id
+          }
+        }
+      )
       const deleteUser = await this.prisma.user.delete({
-        where: { id: id },
-      });
+        where: {
+          id
+        }
+      })
       return deleteUser;
     } catch (error) {
       throw new HttpException(`Error ${error}`, HttpStatus.BAD_REQUEST);
