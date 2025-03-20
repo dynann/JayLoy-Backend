@@ -8,7 +8,8 @@ import {
   Delete,
   Request,
   HttpCode,
-  HttpStatus
+  HttpStatus,
+  Query
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, GetUserDto } from './dto/create-user.dto';
@@ -18,6 +19,7 @@ import {
   ApiBody,
   ApiOperation,
   ApiProperty,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -72,6 +74,15 @@ export class UsersController {
     @Body() updateUserDto: Prisma.UserUpdateInput,
   ) {
     return this.usersService.update(req.user.sub, updateUserDto);
+  }
+
+  @Patch('password')
+  @ApiOperation({ summary: 'update password' })
+  @ApiQuery({ name: 'newPassword', type: String, required: true })
+  @ApiQuery({ name: 'oldPassword', type: String, required: true })
+  @ApiResponse({ status: 200, type: String })
+  async updatePassword(@Request() req, @Query('password') newPassword: string, @Query('oldPassword') oldPassword: string) {
+    return this.usersService.updatePassword(req.user.sub, newPassword, oldPassword);
   }
 
   @Delete()
