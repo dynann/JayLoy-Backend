@@ -1,26 +1,71 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateCurrencyDto } from './dto/create-currency.dto';
 import { UpdateCurrencyDto } from './dto/update-currency.dto';
-
+import { PrismaService } from 'src/prisma/prisma.service';
+import { Prisma } from '@prisma/client';
+import { date } from 'zod';
 @Injectable()
 export class CurrenciesService {
-  create(createCurrencyDto: CreateCurrencyDto) {
-    return 'This action adds a new currency';
+  constructor(private prisma: PrismaService){}
+
+  async create(createCurrencyDto: Prisma.CurrencyCreateInput) {
+    try {
+      return await this.prisma.currency.create({data: createCurrencyDto});
+    } catch  (error) {
+      throw new HttpException(`error occurred: ${error}`, HttpStatus.BAD_REQUEST)
+    }
   }
 
-  findAll() {
-    return `This action returns all currencies`;
+  async findAll() {
+    try {
+      return await this.prisma.currency.findMany()
+    } catch (error) {
+      throw new HttpException(`error occurred ${error}`, HttpStatus.BAD_REQUEST)
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} currency`;
+  async findOne(id: number) {
+    try {
+      return await this.prisma.currency.findUnique({ 
+        where: {
+          id: id
+        }
+      })
+    } catch (error) {
+      throw new HttpException(`error occurred: ${error}`, HttpStatus.BAD_REQUEST)
+    }
   }
 
-  update(id: number, updateCurrencyDto: UpdateCurrencyDto) {
-    return `This action updates a #${id} currency`;
+  async update(id: number, updateCurrencyDto: UpdateCurrencyDto) {
+    try {
+      if(!this.findOne(id)){
+        return 'currency not found'
+      }
+      const update = await this.prisma.currency.update({
+        where: {
+          id: id,
+        },
+        data: updateCurrencyDto
+      })
+      return update
+    } catch (error) {
+      throw new HttpException(`error occurred ${error}`, HttpStatus.BAD_REQUEST)
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} currency`;
+  async remove(id: number) {
+    try {
+      if(!this.findOne(id)){
+        return 'currency not found'
+      }
+      const deleted = await this.prisma.currency.delete({
+        where: {
+          id: id
+        }
+      })
+      return deleted
+    } catch (error ) { 
+      throw new HttpException(`error occurred: ${error}`, HttpStatus.BAD_REQUEST)
+    }
   }
 }

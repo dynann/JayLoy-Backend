@@ -1,34 +1,28 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, Query } from '@nestjs/common';
 import { BudgetsService } from './budgets.service';
-import { CreateBudgetDto } from './dto/create-budget.dto';
-import { UpdateBudgetDto } from './dto/update-budget.dto';
+import { CreateBudgetDto, GetBudgetDto,  UpdateBudgetDto } from './dto/create-budget.dto';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiProperty, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Public } from 'src/config/contants';
 
+@ApiTags('Budgets')
+@ApiBearerAuth()
 @Controller('budgets')
 export class BudgetsController {
   constructor(private readonly budgetsService: BudgetsService) {}
 
-  @Post()
-  create(@Body() createBudgetDto: CreateBudgetDto) {
-    return this.budgetsService.create(createBudgetDto);
+  @Get('/get')
+  @ApiOperation({ summary: 'get one buget' })
+  @ApiResponse({ status: 200, type: GetBudgetDto })
+  async findOne(@Request() req: any) {
+    return this.budgetsService.findOneBudget(req.user.sub);
   }
 
-  @Get()
-  findAll() {
-    return this.budgetsService.findAll();
+  @Patch('/update')
+  @ApiOperation({ summary: 'update one budget' })
+  @ApiBody({ type: UpdateBudgetDto })
+  @ApiResponse({ status: 200, type: UpdateBudgetDto })
+  update(@Request() req: any, @Body() updateBudgetDto: UpdateBudgetDto) {
+    return this.budgetsService.updateOneBudget(req.user.sub, updateBudgetDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.budgetsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBudgetDto: UpdateBudgetDto) {
-    return this.budgetsService.update(+id, updateBudgetDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.budgetsService.remove(+id);
-  }
 }
