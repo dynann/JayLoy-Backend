@@ -13,6 +13,8 @@ export class CreateTransactionDto {
     date: string;
     @ApiProperty({ example: 1 })
     categoryID: number;
+    @ApiProperty({ example: "https://res.cloudinary.com/dlbbfck9n/image/upload/v1742743466/photo_2025-03-23_22-06-23_tzdu5o.jpg"})
+    imageUrl: string;
 }
 
 export class GetTransactionDto {
@@ -30,6 +32,8 @@ export class GetTransactionDto {
     categoryID: number;
     @ApiProperty({ example: 1 })
     accountID: number;
+    @ApiProperty({ example: "https://res.cloudinary.com/dlbbfck9n/image/upload/v1742743466/photo_2025-03-23_22-06-23_tzdu5o.jpg"})
+    imageUrl: string;
     constructor(transaction: any){
         this.id = transaction.id;
         this.amount = Number(transaction.amount);
@@ -38,6 +42,7 @@ export class GetTransactionDto {
         this.date = transaction.date;
         this.categoryID = transaction.categoryID;
         this.accountID = transaction.accountID;
+        this.imageUrl = transaction.imageUrl;
     }
 }
 

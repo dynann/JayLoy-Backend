@@ -39,6 +39,7 @@ export class AccountsService {
           type: createTransactionDto.type,
           description: createTransactionDto.description,
           date: new Date(createTransactionDto.date),
+          imageUrl:createTransactionDto.imageUrl,
           category: {
             connect: {
               id: createTransactionDto.categoryID

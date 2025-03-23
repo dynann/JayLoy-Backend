@@ -21,8 +21,6 @@ export class TransactionsService {
       }
     })
     where.accountID = account.id
-    // console.log("accountID: ", where.id)
-    // console.log('query:', where)
     const transaction = await this.prisma.transaction.findMany({ where });
     return transaction.map(tx => ({
       ...tx,
@@ -36,6 +34,7 @@ export class TransactionsService {
         accountID: id,
       },
     });
+    console.log(transaction)
     return transaction.map((transaction) => new GetTransactionDto(transaction));
   }
 
