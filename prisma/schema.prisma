@@ -89,6 +89,7 @@ model Transaction {
   categoryID Int
   account Account @relation(fields: [accountID], references: [id], onDelete: Cascade)
   accountID Int
+  imageUrl String? @db.VarChar(255)
 }
 
 model Category {

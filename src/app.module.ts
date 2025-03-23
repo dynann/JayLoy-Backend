@@ -14,6 +14,7 @@ import { AuthGuard } from './auth/auth.guard';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule } from '@nestjs/config';
 import { GoogleStrategy } from './auth/strategy/google.strategy';
+import { SeedService } from './seeds/seed.service';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { GoogleStrategy } from './auth/strategy/google.strategy';
       useClass: AuthGuard
     },
     GoogleStrategy,
+    SeedService,
   ],
 })
 export class AppModule {}

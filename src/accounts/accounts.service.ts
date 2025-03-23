@@ -21,20 +21,25 @@ export class AccountsService {
       throw new HttpException(`Error occured: ${error}`, HttpStatus.BAD_REQUEST)
     }
   }
-
+  toIntegerCents(value: number | string): number {
+    const str = typeof value === "string" ? value : value.toFixed(2);
+    const [integer, decimal = "00"] = str.split(".");
+    return parseInt(integer + decimal.padEnd(2, "0").slice(0, 2), 10);
+  }
   async insertTransaction(id: number, createTransactionDto: CreateTransactionDto){
     try {
       if (createTransactionDto.amount == 0){
         return "Invalid amount!"
       }
       const accountId = (await this.findByUserId(id)).id;
-      const amount = BigInt(createTransactionDto.amount * 100)
+      const amount = BigInt(this.toIntegerCents(createTransactionDto.amount))
       await this.prisma.$transaction(async (tx) => {
           await this.transactionService.create({
           amount: amount,
           type: createTransactionDto.type,
           description: createTransactionDto.description,
           date: new Date(createTransactionDto.date),
+          imageUrl:createTransactionDto.imageUrl,
           category: {
             connect: {
               id: createTransactionDto.categoryID
@@ -216,6 +221,30 @@ export class AccountsService {
       "total_remaining": Number(totalRemaining)
     }
     return report;
+  }
+
+  async verifyBalance(userId){
+    const accountId = (await this.findByUserId(userId)).id;
+    const totalIncome = await this.prisma.transaction.aggregate({
+      _sum: {amount: true},
+      where: {
+        type: "INCOME",
+        accountID: accountId,
+        
+      }
+    });
+    const totalExpense = await this.prisma.transaction.aggregate({
+      _sum: {amount: true},
+      where: {
+        type: "EXPENSE",
+        accountID: accountId,
+      }
+    })
+    const totalBalance = totalIncome._sum.amount - totalExpense._sum.amount;
+    await this.prisma.account.update({
+      where: { id: accountId },
+      data: { balance: totalBalance}
+     })
   }
 
 }
