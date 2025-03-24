@@ -39,7 +39,6 @@ import { SeedService } from './seeds/seed.service';
       useClass: AuthGuard
     },
     GoogleStrategy,
-    SeedService,
   ],
 })
 export class AppModule {}
