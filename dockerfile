@@ -15,7 +15,7 @@ RUN npm install --legacy-peer-deps
 # Copy the rest of the application files
 
 COPY . . 
-COPY .env .
+
 
 # 2. Generate Prisma Client before build
 RUN npx prisma generate
@@ -24,7 +24,7 @@ RUN npx prisma generate
 RUN npm run build
 
 # Expose the application port
-EXPOSE 4001
+EXPOSE 3000
 
 # Command to run the application
 CMD ["node", "dist/main"]
