@@ -1,16 +1,30 @@
-# Stage 1: Build
-FROM node:20 AS builder
-WORKDIR /app
+# Use the official Node.js image as the base image
+FROM node:20
+
+# Set the working directory inside the container
+WORKDIR /usr/src/app
+
+# Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
+
+# Install the application dependencies
 RUN npm install
-COPY . .
+
+
+
+# Copy the rest of the application files
+
+COPY . . 
+
+
+# 2. Generate Prisma Client before build
+RUN npx prisma generate
+
+# Build the NestJS application
 RUN npm run build
 
-# Stage 2: Run
-FROM node:20-alpine
-WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package*.json ./
-RUN npm install --only=production
+# Expose the application port
 EXPOSE 3000
+
+# Command to run the application
 CMD ["node", "dist/main"]
