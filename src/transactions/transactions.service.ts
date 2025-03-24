@@ -47,6 +47,15 @@ export class TransactionsService {
     return transaction;
   }
 
+  toIntegerCents(value: number | string | bigint): number {
+    if (typeof value === 'bigint') {
+      value = value.toString();
+    }
+    const str = typeof value === "string" ? value : value.toFixed(2);
+    const [integer, decimal = "00"] = str.split(".");
+    return parseInt(integer + decimal.padEnd(2, "0").slice(0, 2), 10);
+  }
+
   async update(id: number, updateTransactionDto: UpdateTransactionDto) {
     const transaction = await this.prisma.transaction.findUnique({where: {id: id}});
     await this.prisma.$transaction(async (tx) => {
@@ -66,11 +75,16 @@ export class TransactionsService {
           }
         })
       }
+      const amountValue = typeof updateTransactionDto.amount === 'bigint' 
+        ? Number(updateTransactionDto.amount) 
+        : updateTransactionDto.amount;
+      const amountInCents = BigInt(this.toIntegerCents(amountValue));
+      
       if (updateTransactionDto.type === "EXPENSE"){
         await this.prisma.account.update({
           where: {id: transaction.accountID},
           data: {
-            balance: {decrement: BigInt(updateTransactionDto.amount)} 
+            balance: {decrement: amountInCents} 
           }
         })
       }
@@ -78,16 +92,21 @@ export class TransactionsService {
         await this.prisma.account.update({
           where: {id: transaction.accountID},
           data: {
-            balance: {increment: BigInt(updateTransactionDto.amount)} 
+            balance: {increment: amountInCents} 
           }
         })
       }
-    }  
-    )
+    })
+    
+    const transactionAmountValue = typeof updateTransactionDto.amount === 'bigint' 
+      ? Number(updateTransactionDto.amount) 
+      : updateTransactionDto.amount;
+    const transactionAmountInCents = BigInt(this.toIntegerCents(transactionAmountValue));
+    
     const updateTransaction = await this.prisma.transaction.update({
       where: {id: id},
       data: {
-        amount: updateTransactionDto.amount,
+        amount: transactionAmountInCents,
         type: updateTransactionDto.type,
         description: updateTransactionDto.description,
         date: new Date(updateTransactionDto.date),
