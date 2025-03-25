@@ -13,4 +13,6 @@ export class UpdateTransactionDto {
     date?: string;
     @ApiProperty({ example: 1 })
     categoryID?: number;
+    @ApiProperty({example: "https://res.cloudinary.com/dlbbfck9n/image/upload/v1742833533/photo_2025-03-23_22-06-23_wmmmn4.jpg"})
+    imageUrl?: string
 }

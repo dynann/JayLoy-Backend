@@ -110,7 +110,8 @@ export class TransactionsService {
         type: updateTransactionDto.type,
         description: updateTransactionDto.description,
         date: new Date(updateTransactionDto.date),
-        categoryID: updateTransactionDto.categoryID
+        categoryID: updateTransactionDto.categoryID,
+        imageUrl: updateTransactionDto.imageUrl,
       },
     })
 
