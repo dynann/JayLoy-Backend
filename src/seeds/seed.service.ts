@@ -33,7 +33,7 @@ export class SeedService implements OnApplicationBootstrap {
         (2, 'Transport', 'EXPENSE'),
         (3, 'Medicine', 'EXPENSE'),
         (4, 'Groceries', 'EXPENSE'),
-        (5, 'Savings', 'EXPENSE'),
+        (5, 'Clothing', 'EXPENSE'),
         (6, 'Rent', 'EXPENSE'),
         (7, 'Gifts', 'EXPENSE'),
         (8, 'Entertainment', 'EXPENSE'),
@@ -100,7 +100,26 @@ export class SeedService implements OnApplicationBootstrap {
         (45678, 'EXPENSE', 'Laptop repair', '2025-03-22', 2, 1),
         (7650, 'INCOME', 'Freelance project', '2025-03-22', 13, 1),
         (3415, 'EXPENSE', 'Laundry service', '2025-03-22', 10, 1),
-        (12345, 'INCOME', 'Commission', '2025-03-22', 11, 1);
+        (12345, 'INCOME', 'Commission', '2025-03-22', 11, 1),
+        (8888, 'INCOME', 'Dividend payout', '2025-04-01', 12, 1),
+        (15600, 'EXPENSE', 'Hotel booking', '2025-04-01', 9, 1),
+        (6789, 'EXPENSE', 'Parking fee', '2025-04-01', 3, 1),
+        (23456, 'INCOME', 'Bonus', '2025-04-01', 14, 1),
+        (1299, 'EXPENSE', 'Music subscription', '2025-04-01', 8, 1),
+        (45678, 'EXPENSE', 'Laptop repair', '2025-04-01', 2, 1),
+        (7650, 'INCOME', 'Freelance project', '2025-04-01', 13, 1),
+        (3415, 'EXPENSE', 'Laundry service', '2025-04-01', 10, 1),
+        
+        (15600, 'EXPENSE', 'Hotel booking', '2025-04-01', 9, 1),
+        (6789, 'EXPENSE', 'Parking fee', '2025-04-01', 3, 1),
+        (23456, 'INCOME', 'Bonus', '2025-04-01', 14, 1),
+        (1299, 'EXPENSE', 'Music subscription', '2025-04-01', 8, 1),
+        (45678, 'EXPENSE', 'Daughter Gift', '2025-04-01', 5, 1),
+        (7650, 'EXPENSE', 'Son Gift', '2025-04-01', 5, 1),
+        (3415, 'EXPENSE', 'Husband Gift', '2025-04-01', 5, 1),
+        
+        (12345, 'INCOME', 'Commission', '2025-04-01', 11, 1);
+
     `;
     await this.accountService.verifyBalance(user.id);
     console.log('✅ Automatic seeding completed!');
